@@ -1,0 +1,41 @@
+Code-Size Benchmark Environment (CSiBE)
+---------------------------------------
+
+Authors:
+        Arpad Beszedes <beszedes@inf.u-szeged.hu>,
+        Rudolf Ferenc <ferenc@inf.u-szeged.hu>,
+        Tamas Gergely <gertom@inf.u-szeged.hu>,
+        Tibor Gyimothy <gyimi@inf.u-szeged.hu>,
+        Ferenc Havasi <havasi@inf.u-szeged.hu>,
+        Akos Kiss <akoskiss@inf.u-szeged.hu>,
+        Gabor Loki <loki@inf.u-szeged.hu>,
+        Laszlo Vidacs <lac@inf.u-szeged.hu>.
+        University of Szeged, Software Engineering Department, 2003-2004.
+
+Licenses:
+        This software  (except some sources in the `src' directory;  see file
+        CSiBE-README in the `src' directory) is free; you can redistribute it
+        and/or modify it under the terms of the GNU General Public License as
+        published  by  the Free Software Foundation;  either version 2 of the
+        License, or (at your option) any later version.
+
+Usage:
+        The  `create-config'  program creates a new directory.  It copies and
+        processes the sources  from the `src' directory.  By typing `make' or
+        `make result'  in this new directory the sources are compiled and the
+        sizes and  compilation times of  the resulting objects  are measured.
+        The size and time results of the measurements are placed in the files
+        `result-size.csv' and `result-time.csv'.
+        
+        Note,  that additional sources can be downloaded to perform execution
+        time measurement.
+
+        To configure the measurement the switches of  `create-config'  can be
+        used (type `create-config -h' for the available switches).
+
+Contact:
+         Send comments, suggestions and inquiries to:
+           csibe-feedback@sed.inf.u-szeged.hu
+
+         Also see the CSiBE website at:
+           http://www.csibe.org

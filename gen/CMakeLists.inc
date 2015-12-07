@@ -1,0 +1,16 @@
+file(GLOB SRC ${PROJECT_SOURCE_DIR}/*.c)
+
+add_library(${PROJECT_NAME} OBJECT ${SRC})
+
+include(${CSiBE_GEN_DIR}/GCC.inc)
+include(${CSiBE_GEN_DIR}/Clang.inc)
+
+set (SIZE_RESULT "${PROJECT_BINARY_DIR}/result.csv")
+set (CMAKE_C_COMPILE_OBJECT
+    "<CMAKE_C_COMPILER> <DEFINES> <FLAGS> -o <OBJECT> -c <SOURCE> && ${DUMP_OBJ_SIZE} <OBJECT> ${PROJECT_BINARY_DIR}")
+
+add_custom_target (${PROJECT_NAME}_size DEPENDS ${SIZE_RESULT})
+add_custom_command (OUTPUT ${SIZE_RESULT}
+  COMMAND ${SUM_SIZES} ${PROJECT_BINARY_DIR} ${SIZE_RESULT}
+  DEPENDS ${PROJECT_NAME})
+

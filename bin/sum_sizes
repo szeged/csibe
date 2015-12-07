@@ -1,0 +1,6 @@
+#!/bin/bash
+
+RESULT_DIR=$1
+DEST=$2
+
+cat $1/*_result.txt > $DEST

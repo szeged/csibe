@@ -1,0 +1,13 @@
+#!/bin/bash
+
+OUT=$1
+FILES=`find . -name 'result.csv'`
+
+rm -f $OUT
+
+for F in $FILES
+do
+	DIR=`dirname $F`
+	PROJECT=`basename $DIR`
+	cat $F | sed -e 's#\(.*\)#'$PROJECT',\1#' >> $OUT
+done

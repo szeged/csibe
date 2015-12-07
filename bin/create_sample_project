@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+mkdir $DIR/build_sample
+cd $DIR/build_sample
+
+cmake .. && make -j 1 size
+
+if [ -f all_results.csv ]
+then
+  echo ""
+  echo "Summarized results:"
+  echo "-------------------"
+  echo ""
+  cat all_results.csv
+fi

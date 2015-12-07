@@ -1,0 +1,7 @@
+#!/bin/bash
+
+OBJ=$1
+BASE=`basename $OBJ`
+DEST_DIR=$2
+
+size $OBJ | awk '{if($6 ~ /\.o$/) {sub(".*/", "", $6); print $6 "," $1;}}' > $DEST_DIR/${BASE}_result.txt

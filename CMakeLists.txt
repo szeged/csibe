@@ -19,14 +19,23 @@ set (DUMP_OBJ_SIZE ${CSiBE_BIN_DIR}/dump_obj_size)
 set (SUM_SIZES ${CSiBE_BIN_DIR}/sum_sizes)
 set (SUM_RESULT ${CSiBE_BIN_DIR}/sum_results)
 
+add_custom_target (size
+	COMMAND ${SUM_RESULT} ${CMAKE_BINARY_DIR}/all_results.csv)
+
 # PROJECTS
+set (PROJECT_LIST)
+
 set (P1 "bzip2-1.0.6")
 add_subdirectory(${CSiBE_GEN_DIR}/${P1})
+add_dependencies (size ${P1}_size)
+list (APPEND PROJECT_LIST ${P1})
 
 set (P2 "flex-2.6.0")
 add_subdirectory(${CSiBE_GEN_DIR}/${P2})
+add_dependencies (size ${P2}_size)
+list (APPEND PROJECT_LIST ${P2})
 
-add_custom_target (size 
-	COMMAND ${SUM_RESULT} ${CMAKE_BINARY_DIR}/all_results.csv
-	DEPENDS ${P1}_size ${P2}_size)
+if (NOT PROJECT_LIST)
+  message(FATAL_ERROR "No projects to build!")
+endif ()
 

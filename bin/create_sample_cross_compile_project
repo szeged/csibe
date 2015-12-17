@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# This script needs an arm-none-eabi toolchain to work.
+# On an Ubuntu machine just uncomment the following line to install it:
+# sudo apt-get install gcc-arm-none-eabi
+#
+# Alternatively, you can download the toolchain from here:
+# https://launchpad.net/gcc-arm-embedded
+# or use your system's package manager to install the toolchain.
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+mkdir $DIR/build_sample
+cd $DIR/build_sample
+
+cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-files/gcc-cortex-m0.cmake .. && make -j 1 size
+
+if [ -f all_results.csv ]
+then
+  echo ""
+  echo "Summarized results:"
+  echo "-------------------"
+  echo ""
+  cat all_results.csv
+fi

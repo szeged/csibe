@@ -6,7 +6,7 @@ The primary purpose of CSiBE is to monitor the size of the binary code generated
 
 ## Basic usage
 
-To create a new measurement project first checkout out 'bin/create_sample_project' script. This will help you through to create your own measurement. To create a new measurement project first checkout out 'bin/create_sample_project' script. This will help you through to create your own measurement. To create a measurement project that uses a cross-compiler check out the 'bin/create_sample_cross_compile_project' script.
+To create a new measurement project first checkout out 'bin/create_sample_project' script. This will help you through to create your own measurement. To create a measurement project that uses a cross-compiler check out the 'bin/create_sample_cross_compile_project' script.
 
 ## Links
 

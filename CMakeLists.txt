@@ -37,6 +37,15 @@ if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Generic"))
   list (APPEND PROJECT_LIST ${P2})
 endif ()
 
+set (CMSIS_BASE_DIR ${CSiBE_SRC_DIR}/CMSIS)
+set (CMSIS_SUBPROJECTS BasicMathFunctions CommonTables)
+foreach (SUBPROJECT ${CMSIS_SUBPROJECTS})
+  add_subdirectory(${CSiBE_GEN_DIR}/CMSIS/${SUBPROJECT})
+  add_dependencies(size ${SUBPROJECT}_size)
+  list(APPEND PROJECT_LIST ${SUBPROJECT})
+endforeach(SUBPROJECT)
+
+
 if (NOT PROJECT_LIST)
   message(FATAL_ERROR "No projects to build!")
 endif ()

@@ -34,7 +34,7 @@ list (APPEND PROJECT_LIST ${P1})
 if ((CMAKE_SYSTEM_NAME STREQUAL "Generic"))
   set (CMSIS_BASE_DIR ${CSiBE_SRC_DIR}/CMSIS)
   set (CMSIS_SUBPROJECTS BasicMathFunctions CommonTables ComplexMathFunctions ControllerFunctions
-        FastMathFunctions FilteringFunctions MatrixFunctions StatisticsFunctions)
+        FastMathFunctions FilteringFunctions MatrixFunctions StatisticsFunctions SupportFunctions)
   foreach (SUBPROJECT ${CMSIS_SUBPROJECTS})
     add_subdirectory(${CSiBE_GEN_DIR}/CMSIS/${SUBPROJECT})
     add_dependencies(size ${SUBPROJECT}_size)

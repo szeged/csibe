@@ -30,7 +30,18 @@ add_subdirectory(${CSiBE_GEN_DIR}/${P1})
 add_dependencies (size ${P1}_size)
 list (APPEND PROJECT_LIST ${P1})
 
-if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Generic"))
+# 'Generic' CMAKE_SYSTEM_NAME means 'an embedded system without OS' here.
+if ((CMAKE_SYSTEM_NAME STREQUAL "Generic"))
+  set (CMSIS_BASE_DIR ${CSiBE_SRC_DIR}/CMSIS)
+  set (CMSIS_SUBPROJECTS BasicMathFunctions CommonTables ComplexMathFunctions
+        ControllerFunctions FastMathFunctions FilteringFunctions MatrixFunctions
+        StatisticsFunctions SupportFunctions TransformFunctions)
+  foreach (SUBPROJECT ${CMSIS_SUBPROJECTS})
+    add_subdirectory(${CSiBE_GEN_DIR}/CMSIS/${SUBPROJECT})
+    add_dependencies(size ${SUBPROJECT}_size)
+    list(APPEND PROJECT_LIST ${SUBPROJECT})
+  endforeach(SUBPROJECT)
+else ()
   set (P2 "flex-2.6.0")
   add_subdirectory(${CSiBE_GEN_DIR}/${P2})
   add_dependencies (size ${P2}_size)

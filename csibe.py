@@ -21,7 +21,6 @@ toolchain_path = os.path.join(csibe_path, "toolchain-files")
 cmake_toolchain_option = ""
 if args.toolchain:
     toolchain_file = "{}.cmake".format(args.toolchain)
-    print toolchain_file
     cmake_toolchain_option = "-DCMAKE_TOOLCHAIN_FILE={}".format(os.path.join(toolchain_path, toolchain_file))
 
 build_directory = "build"

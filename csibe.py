@@ -5,11 +5,11 @@ import os
 import subprocess
 import sys
 
-toolchains = ["clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
+toolchains = ["native", "clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-j", "--jobs", type=int, default=1, help="number of jobs for make")
-parser.add_argument("--toolchain", choices=toolchains,
+parser.add_argument("--toolchain", choices=toolchains, default="native",
                     help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
 args = parser.parse_args()
 
@@ -19,11 +19,11 @@ csibe_path = os.path.dirname(os.path.realpath(__file__))
 toolchain_path = os.path.join(csibe_path, "toolchain-files")
 
 cmake_toolchain_option = ""
-if args.toolchain:
+if args.toolchain is not "native":
     toolchain_file = "{}.cmake".format(args.toolchain)
     cmake_toolchain_option = "-DCMAKE_TOOLCHAIN_FILE={}".format(os.path.join(toolchain_path, toolchain_file))
 
-build_directory = "build"
+build_directory = os.path.join("build", args.toolchain)
 
 if not os.path.isdir(build_directory):
     os.makedirs(build_directory)

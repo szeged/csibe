@@ -5,6 +5,44 @@ import os
 import subprocess
 import sys
 
+class CSiBEBuilder:
+
+    def __init__(self, csibe_path, build_path, toolchain_name):
+
+        self.csibe_dir = csibe_path
+        self.build_dir = build_path
+        self.toolchain_name = toolchain_name
+
+        self.toolchain_build_dir = os.path.join(self.build_dir, self.toolchain_name)
+
+        self.toolchain_files_dir = os.path.join(self.csibe_dir, "toolchain-files")
+
+        if self.toolchain_name == "native":
+            self.toolchain_file_path = None
+        else:
+            self.toolchain_file_path = os.path.join(self.toolchain_files_dir, "{}.cmake".format(toolchain_name))
+
+        self.cmake_toolchain_options = ""
+        if self.toolchain_file_path:
+            self.cmake_toolchain_options = "-DCMAKE_TOOLCHAIN_FILE={}".format(self.toolchain_file_path)
+
+    def run_cmake(self, cwd):
+        if not os.path.isdir(self.toolchain_build_dir):
+            os.makedirs(self.toolchain_build_dir)
+
+        os.chdir(self.toolchain_build_dir)
+        cmake_return_value = subprocess.call(["cmake", self.cmake_toolchain_options, self.csibe_dir])
+        os.chdir(cwd)
+
+        return cmake_return_value
+
+    def run_make(self, jobs):
+        return subprocess.call(["make","-C{}".format(self.toolchain_build_dir), "-j{}".format(jobs)])
+
+    def run_make_size(self):
+        return subprocess.call(["make","-C{}".format(self.toolchain_build_dir), "size"])
+
+
 toolchains = ["native", "clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
 
 parser = argparse.ArgumentParser()
@@ -13,32 +51,19 @@ parser.add_argument("--toolchain", choices=toolchains, default="native",
                     help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
 args = parser.parse_args()
 
-make_jobs = args.jobs
-
 csibe_path = os.path.dirname(os.path.realpath(__file__))
-toolchain_path = os.path.join(csibe_path, "toolchain-files")
 
-cmake_toolchain_option = ""
-if args.toolchain != "native":
-    toolchain_file = "{}.cmake".format(args.toolchain)
-    cmake_toolchain_option = "-DCMAKE_TOOLCHAIN_FILE={}".format(os.path.join(toolchain_path, toolchain_file))
+builder = CSiBEBuilder(csibe_path, "build", args.toolchain)
 
-build_directory = os.path.join("build", args.toolchain)
-
-if not os.path.isdir(build_directory):
-    os.makedirs(build_directory)
-
-os.chdir(build_directory)
-
-cmake_return_value = subprocess.call(["cmake", cmake_toolchain_option, csibe_path])
+cmake_return_value = builder.run_cmake(os.getcwd())
 if cmake_return_value:
     sys.exit(cmake_return_value)
 
-make_return_value = subprocess.call(["make", "-j{}".format(make_jobs)])
+make_return_value = builder.run_make(args.jobs)
 if make_return_value:
     sys.exit(make_return_value)
 
-make_size_return_value =  subprocess.call(["make", "size"])
+make_size_return_value = builder.run_make_size()
 if make_size_return_value:
     sys.exit(make_size_return_value)
 

@@ -19,7 +19,7 @@ csibe_path = os.path.dirname(os.path.realpath(__file__))
 toolchain_path = os.path.join(csibe_path, "toolchain-files")
 
 cmake_toolchain_option = ""
-if args.toolchain is not "native":
+if args.toolchain != "native":
     toolchain_file = "{}.cmake".format(args.toolchain)
     cmake_toolchain_option = "-DCMAKE_TOOLCHAIN_FILE={}".format(os.path.join(toolchain_path, toolchain_file))
 

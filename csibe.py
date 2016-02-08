@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-class CSiBEBuilder:
+class CSiBEBuilder(object):
 
     def __init__(self, csibe_path, build_path, toolchain_name):
 

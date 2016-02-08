@@ -13,14 +13,20 @@ class CSiBEBuilder:
         self.build_dir = build_path
         self.toolchain_name = toolchain_name
 
-        self.toolchain_build_dir = os.path.join(self.build_dir, self.toolchain_name)
+        self.toolchain_build_dir = os.path.join(
+                                       self.build_dir,
+                                       self.toolchain_name)
 
-        self.toolchain_files_dir = os.path.join(self.csibe_dir, "toolchain-files")
+        self.toolchain_files_dir = os.path.join(
+                                       self.csibe_dir,
+                                       "toolchain-files")
 
         if self.toolchain_name == "native":
             self.toolchain_file_path = None
         else:
-            self.toolchain_file_path = os.path.join(self.toolchain_files_dir, "{}.cmake".format(toolchain_name))
+            self.toolchain_file_path = os.path.join(
+                                           self.toolchain_files_dir,
+                                           "{}.cmake".format(toolchain_name))
 
         self.cmake_toolchain_options = ""
         if self.toolchain_file_path:
@@ -31,28 +37,54 @@ class CSiBEBuilder:
             os.makedirs(self.toolchain_build_dir)
 
         cmake_return_value = subprocess.call(
-           ["cmake",
-           self.cmake_toolchain_options,
-           self.csibe_dir,
-           "-B{}".format(self.toolchain_build_dir)])
+            ["cmake",
+             self.cmake_toolchain_options,
+             self.csibe_dir,
+             "-B{}".format(self.toolchain_build_dir)])
 
         return cmake_return_value
 
     def run_make(self, jobs):
-        return subprocess.call(["make","-C{}".format(self.toolchain_build_dir), "-j{}".format(jobs)])
+        return subprocess.call(
+            ["make",
+             "-C{}".format(self.toolchain_build_dir),
+             "-j{}".format(jobs)])
 
     def run_make_size(self):
-        return subprocess.call(["make","-C{}".format(self.toolchain_build_dir), "size"])
+        return subprocess.call(
+            ["make",
+             "-C{}".format(self.toolchain_build_dir),
+             "size"])
+
 
 if __name__ == "__main__":
 
-    toolchains = ["native", "clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
+    toolchains = ["native",
+                  "clang-cortex-m0",
+                  "clang-cortex-m4",
+                  "gcc-cortex-m0",
+                  "gcc-cortex-m4"]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-j", "--jobs", type=int, default=1, help="number of jobs for make")
-    parser.add_argument("--toolchain", choices=toolchains, default="native",
-                        help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
-    parser.add_argument("--build-all", action="store_true", help="build every target")
+
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=1,
+        help="number of jobs for make")
+
+    parser.add_argument(
+        "--toolchain",
+        choices=toolchains,
+        default="native",
+        help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
+
+    parser.add_argument(
+        "--build-all",
+        action="store_true",
+        help="build every target")
+
     args = parser.parse_args()
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))

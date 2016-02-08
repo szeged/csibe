@@ -78,7 +78,8 @@ if __name__ == "__main__":
         "--toolchain",
         choices=toolchains,
         default="native",
-        help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
+        help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains),
+        metavar="")
 
     parser.add_argument(
         "--build-all",

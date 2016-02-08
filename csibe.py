@@ -42,28 +42,29 @@ class CSiBEBuilder:
     def run_make_size(self):
         return subprocess.call(["make","-C{}".format(self.toolchain_build_dir), "size"])
 
+if __name__ == "__main__":
 
-toolchains = ["native", "clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
+    toolchains = ["native", "clang-cortex-m0", "clang-cortex-m4", "gcc-cortex-m0", "gcc-cortex-m4"]
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-j", "--jobs", type=int, default=1, help="number of jobs for make")
-parser.add_argument("--toolchain", choices=toolchains, default="native",
-                    help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
-args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-j", "--jobs", type=int, default=1, help="number of jobs for make")
+    parser.add_argument("--toolchain", choices=toolchains, default="native",
+                        help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
+    args = parser.parse_args()
 
-csibe_path = os.path.dirname(os.path.realpath(__file__))
+    csibe_path = os.path.dirname(os.path.realpath(__file__))
 
-builder = CSiBEBuilder(csibe_path, "build", args.toolchain)
+    builder = CSiBEBuilder(csibe_path, "build", args.toolchain)
 
-cmake_return_value = builder.run_cmake(os.getcwd())
-if cmake_return_value:
-    sys.exit(cmake_return_value)
+    cmake_return_value = builder.run_cmake(os.getcwd())
+    if cmake_return_value:
+        sys.exit(cmake_return_value)
 
-make_return_value = builder.run_make(args.jobs)
-if make_return_value:
-    sys.exit(make_return_value)
+    make_return_value = builder.run_make(args.jobs)
+    if make_return_value:
+        sys.exit(make_return_value)
 
-make_size_return_value = builder.run_make_size()
-if make_size_return_value:
-    sys.exit(make_size_return_value)
+    make_size_return_value = builder.run_make_size()
+    if make_size_return_value:
+        sys.exit(make_size_return_value)
 

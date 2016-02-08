@@ -26,7 +26,7 @@ class CSiBEBuilder:
         if self.toolchain_file_path:
             self.cmake_toolchain_options = "-DCMAKE_TOOLCHAIN_FILE={}".format(self.toolchain_file_path)
 
-    def run_cmake(self, cwd):
+    def run_cmake(self):
         if not os.path.isdir(self.toolchain_build_dir):
             os.makedirs(self.toolchain_build_dir)
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     builder = CSiBEBuilder(csibe_path, "build", args.toolchain)
 
-    cmake_return_value = builder.run_cmake(os.getcwd())
+    cmake_return_value = builder.run_cmake()
     if cmake_return_value:
         sys.exit(cmake_return_value)
 

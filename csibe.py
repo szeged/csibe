@@ -52,21 +52,28 @@ if __name__ == "__main__":
     parser.add_argument("-j", "--jobs", type=int, default=1, help="number of jobs for make")
     parser.add_argument("--toolchain", choices=toolchains, default="native",
                         help="Toolchain to be used by CMake. Possible values are " + ", ".join(toolchains), metavar="")
+    parser.add_argument("--build-all", action="store_true", help="build every target")
     args = parser.parse_args()
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
 
-    builder = CSiBEBuilder(csibe_path, "build", args.toolchain)
+    if args.build_all:
+        targets_to_build = toolchains
+    else:
+        targets_to_build = [args.toolchain]
 
-    cmake_return_value = builder.run_cmake()
-    if cmake_return_value:
-        sys.exit(cmake_return_value)
+    for target in targets_to_build:
+        builder = CSiBEBuilder(csibe_path, "build", target)
 
-    make_return_value = builder.run_make(args.jobs)
-    if make_return_value:
-        sys.exit(make_return_value)
+        cmake_return_value = builder.run_cmake()
+        if cmake_return_value:
+            sys.exit(cmake_return_value)
 
-    make_size_return_value = builder.run_make_size()
-    if make_size_return_value:
-        sys.exit(make_size_return_value)
+        make_return_value = builder.run_make(args.jobs)
+        if make_return_value:
+            sys.exit(make_return_value)
+
+        make_size_return_value = builder.run_make_size()
+        if make_size_return_value:
+            sys.exit(make_size_return_value)
 

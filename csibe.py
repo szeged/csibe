@@ -30,9 +30,11 @@ class CSiBEBuilder:
         if not os.path.isdir(self.toolchain_build_dir):
             os.makedirs(self.toolchain_build_dir)
 
-        os.chdir(self.toolchain_build_dir)
-        cmake_return_value = subprocess.call(["cmake", self.cmake_toolchain_options, self.csibe_dir])
-        os.chdir(cwd)
+        cmake_return_value = subprocess.call(
+           ["cmake",
+           self.cmake_toolchain_options,
+           self.csibe_dir,
+           "-B{}".format(self.toolchain_build_dir)])
 
         return cmake_return_value
 

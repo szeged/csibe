@@ -1,9 +1,18 @@
 #!/bin/bash
 
 OUT=$1
+COMPILER=$2
+FLAGS=$3
+
 FILES=`find . -name 'result.csv'`
 
 rm -f $OUT
+
+COMPILER_VERSION=$($COMPILER --version | sed -n '1p')
+echo "Compiler version,$COMPILER_VERSION" >> $OUT
+
+echo "Compiler flags,$FLAGS" >> $OUT
+echo "" >> $OUT
 
 for F in $FILES
 do

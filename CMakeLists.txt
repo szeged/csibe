@@ -20,7 +20,7 @@ set (SUM_SIZES ${CSiBE_BIN_DIR}/sum_sizes)
 set (SUM_RESULT ${CSiBE_BIN_DIR}/sum_results)
 
 add_custom_target (size
-	COMMAND ${SUM_RESULT} ${CMAKE_BINARY_DIR}/all_results.csv)
+       COMMAND ${SUM_RESULT} ${CMAKE_BINARY_DIR}/all_results.csv ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS})
 
 # PROJECTS
 set (PROJECT_LIST)

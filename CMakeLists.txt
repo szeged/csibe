@@ -25,28 +25,32 @@ add_custom_target (size
 # PROJECTS
 set (PROJECT_LIST)
 
-set (P1 "bzip2-1.0.6")
-add_subdirectory(${CSiBE_GEN_DIR}/${P1})
-add_dependencies (size ${P1}_size)
-list (APPEND PROJECT_LIST ${P1})
+# Add bzip2 project
+list (APPEND SUBPROJECTS "bzip2-1.0.6")
 
+# Add CMSIS project subprojects
 # 'Generic' CMAKE_SYSTEM_NAME means 'an embedded system without OS' here.
 if ((CMAKE_SYSTEM_NAME STREQUAL "Generic"))
   set (CMSIS_BASE_DIR ${CSiBE_SRC_DIR}/CMSIS)
-  set (CMSIS_SUBPROJECTS BasicMathFunctions CommonTables ComplexMathFunctions
-        ControllerFunctions FastMathFunctions FilteringFunctions MatrixFunctions
-        StatisticsFunctions SupportFunctions TransformFunctions)
-  foreach (SUBPROJECT ${CMSIS_SUBPROJECTS})
-    add_subdirectory(${CSiBE_GEN_DIR}/CMSIS/${SUBPROJECT})
-    add_dependencies(size ${SUBPROJECT}_size)
-    list(APPEND PROJECT_LIST ${SUBPROJECT})
-  endforeach(SUBPROJECT)
-else ()
-  set (P2 "flex-2.6.0")
-  add_subdirectory(${CSiBE_GEN_DIR}/${P2})
-  add_dependencies (size ${P2}_size)
-  list (APPEND PROJECT_LIST ${P2})
+  set (CMSIS_SUBPROJECTS CMSIS/BasicMathFunctions CMSIS/CommonTables CMSIS/ComplexMathFunctions
+        CMSIS/ControllerFunctions CMSIS/FastMathFunctions CMSIS/FilteringFunctions CMSIS/MatrixFunctions
+        CMSIS/StatisticsFunctions CMSIS/SupportFunctions CMSIS/TransformFunctions)
+  list(APPEND SUBPROJECTS ${CMSIS_SUBPROJECTS})
 endif ()
+
+# Add flex project except on embedded
+if ((NOT CMAKE_SYSTEM_NAME MATCHES "Generic"))
+  list (APPEND SUBPROJECTS "flex-2.6.0")
+endif ()
+
+# Setup the path and target names
+foreach (ELEM ${SUBPROJECTS})
+  set (NAME)
+  string(REGEX REPLACE ".*/" "" NAME ${ELEM})
+  add_subdirectory(${CSiBE_GEN_DIR}/${ELEM})
+  add_dependencies(size ${NAME}_size)
+  list(APPEND PROJECT_LIST ${NAME})
+endforeach(ELEM)
 
 if (NOT PROJECT_LIST)
   message(FATAL_ERROR "No projects to build!")

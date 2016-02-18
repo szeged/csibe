@@ -81,6 +81,11 @@ if __name__ == "__main__":
         action="store_true",
         help="build every target")
 
+    parser.add_argument(
+        "--cmake-only",
+        action="store_true",
+        help="run CMake only")
+
     args = parser.parse_args()
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
@@ -116,6 +121,9 @@ if __name__ == "__main__":
         cmake_return_value = builder.run_cmake()
         if cmake_return_value:
             sys.exit(cmake_return_value)
+
+        if args.cmake_only:
+            continue
 
         make_return_value = builder.run_make(args.jobs)
         if make_return_value:

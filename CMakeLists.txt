@@ -46,7 +46,7 @@ endif ()
 # Setup the path and target names
 foreach (ELEM ${SUBPROJECTS})
   set (NAME)
-  string(REPLACE "/" "_" NAME ${ELEM})
+  string(REGEX REPLACE ".*/" "" NAME ${ELEM})
   add_subdirectory(${CSiBE_GEN_DIR}/${ELEM})
   add_dependencies(size ${NAME}_size)
   list(APPEND PROJECT_LIST ${NAME})

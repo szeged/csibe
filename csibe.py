@@ -85,6 +85,26 @@ if __name__ == "__main__":
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
 
+    submodule_init_return_value = subprocess.call(
+                                      ["git",
+                                       "-C",
+                                       csibe_path,
+                                       "submodule",
+                                       "init"])
+    if submodule_init_return_value:
+        sys.stdout.write("Warning: Failed to execute git submodule init.")
+
+
+    submodule_update_return_value = subprocess.call(
+                                       ["git",
+                                        "-C",
+                                        csibe_path,
+                                        "submodule",
+                                        "update"])
+    if submodule_update_return_value:
+        sys.stdout.write("Warning: Failed to execute git submodule update.")
+
+
     if args.build_all:
         targets_to_build = toolchains
     else:

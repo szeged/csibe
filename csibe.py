@@ -52,6 +52,30 @@ class CSiBEBuilder(object):
              "size"])
 
 
+def submodule_init_and_update(repository_path):
+    init_return_value = subprocess.call(
+                            ["git",
+                             "-C",
+                             repository_path,
+                             "submodule",
+                             "init"])
+
+    if init_return_value:
+        sys.stdout.write("Warning: Failed to execute git submodule init.")
+        return
+
+    update_return_value = subprocess.call(
+                              ["git",
+                               "-C",
+                               repository_path,
+                               "submodule",
+                               "update"])
+
+    if update_return_value:
+        sys.stdout.write("Warning: Failed to execute git submodule update.")
+        return
+
+
 if __name__ == "__main__":
 
     toolchains = ["native",
@@ -81,9 +105,16 @@ if __name__ == "__main__":
         action="store_true",
         help="build every target")
 
+    parser.add_argument(
+        "--cmake-only",
+        action="store_true",
+        help="run CMake only")
+
     args = parser.parse_args()
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
+
+    submodule_init_and_update(csibe_path)
 
     if args.build_all:
         targets_to_build = toolchains
@@ -96,6 +127,9 @@ if __name__ == "__main__":
         cmake_return_value = builder.run_cmake()
         if cmake_return_value:
             sys.exit(cmake_return_value)
+
+        if args.cmake_only:
+            continue
 
         make_return_value = builder.run_make(args.jobs)
         if make_return_value:

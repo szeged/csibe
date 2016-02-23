@@ -110,6 +110,11 @@ if __name__ == "__main__":
         action="store_true",
         help="run CMake only")
 
+    parser.add_argument(
+        "--build-dir",
+        default="build",
+        help="directory name for build files")
+
     args = parser.parse_args()
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
@@ -122,7 +127,7 @@ if __name__ == "__main__":
         targets_to_build = [args.toolchain]
 
     for target in targets_to_build:
-        builder = CSiBEBuilder(csibe_path, "build", target)
+        builder = CSiBEBuilder(csibe_path, args.build_dir, target)
 
         cmake_return_value = builder.run_cmake()
         if cmake_return_value:

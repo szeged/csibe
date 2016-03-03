@@ -7,6 +7,8 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
 set(triple arm-none-eabi)
 
 set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
 
 set(CORTEX_M4_FLAGS "--target=${triple} -Os -mcpu=cortex-m4 -mthumb -msoft-float")
 set(CMAKE_C_FLAGS "${CORTEX_M4_FLAGS}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "${CORTEX_M4_FLAGS}" CACHE STRING "" FORCE)

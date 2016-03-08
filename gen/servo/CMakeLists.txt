@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-include(ExternalProject)
 
 project (servo)
 
@@ -13,8 +12,9 @@ set (ENV{SERVO_CACHE_DIR}   ${PROJECT_BINARY_DIR}/.servo)
 set (ENV{CARGO_HOME}        ${PROJECT_BINARY_DIR}/.cargo)
 set (ENV{CARGO_TARGET_DIR}  ${PROJECT_BINARY_DIR}/target)
 
-# Uncomment to add additional compiler flags
-# set (ENV{CSiBE_RUSTCFLAGS}  "-C opt-level=0")
+# Use wrappers for compilers
+set (ENV{CC} ${PROJECT_GEN_DIR}/gcc)
+set (ENV{CXX} ${PROJECT_GEN_DIR}/g++)
 
 execute_process(COMMAND ${PROJECT_SOURCE_DIR}/mach bootstrap-rust)
 execute_process(COMMAND ${PROJECT_GEN_DIR}/setup-csibe.py ${PROJECT_BINARY_DIR}/.servo)

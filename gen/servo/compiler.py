@@ -20,22 +20,22 @@ if __name__ == '__main__':
     basename = os.path.basename(sys.argv[0])
     abspath = os.path.abspath(sys.argv[0])
     next = which_next(basename, abspath);
-    if (not next):
+    if not next:
         logging.error("Missing '" + basename + "' from PATH!")
         sys.exit(1)
 
     clearopts=False
     if basename.endswith("g++") or basename.endswith("clang++"):
-        flags = os.getenv('CSiBE_CXXFLAGS','').split()
-        ext = ['.cxx','.cpp']
+        flags = os.getenv('CSiBE_CXXFLAGS', '').split()
+        ext = ['.cxx', '.cpp']
     elif basename.endswith("rustc"):
-        flags = os.getenv('CSiBE_RUSTCFLAGS','').split()
+        flags = os.getenv('CSiBE_RUSTCFLAGS', '').split()
         ext = ['.rs']
     else:
-        flags = os.getenv('CSiBE_CFLAGS','').split()
+        flags = os.getenv('CSiBE_CFLAGS', '').split()
         ext = ['.c']
 
-    if flags and len(flags) > 0 and flags[0] == "!":
+    if flags and flags[0] == "!":
         clearopts = True
         flags = flags[1:]
 

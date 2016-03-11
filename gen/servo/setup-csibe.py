@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     original = match + "-orig"
     if os.path.isfile(original):
-        sys.exit(2)
+        sys.exit(0)
 
     os.rename(match, original)
     shutil.copy2(wrapper, match)

@@ -2,22 +2,15 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("CSiBE")
 
-set (CSiBE_VERSION_MAJOR 3)
-set (CSiBE_VERSION_MINOR 0)
-set (CSiBE_PATCH_VERSION 0)
+# CSiBE base directory
+set (CSiBE_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+# Inlcude CSiBE's environment
+include(${CSiBE_DIR}/cmake/csibe-env.cmake)
 
 set (CMAKE_BINARY_DIR ${PROJECT_BINARY_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-
-set (CSiBE_DIR ${CMAKE_CURRENT_LIST_DIR})
-set (CSiBE_BIN_DIR ${CSiBE_DIR}/bin)
-set (CSiBE_GEN_DIR ${CSiBE_DIR}/gen)
-set (CSiBE_SRC_DIR ${CSiBE_DIR}/src)
-
-set (DUMP_OBJ_SIZE ${CSiBE_BIN_DIR}/dump_obj_size)
-set (SUM_SIZES ${CSiBE_BIN_DIR}/sum_sizes)
-set (SUM_RESULT ${CSiBE_BIN_DIR}/sum_results)
 
 add_custom_target (size
        COMMAND ${SUM_RESULT} ${CMAKE_BINARY_DIR}/all_results.csv ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS})

@@ -2,6 +2,7 @@ file(GLOB SRC ${PROJECT_SOURCE_DIR}/*.c)
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})
 
+include(${CSiBE_GEN_DIR}/CSiBE_flags.inc)
 include(${CSiBE_GEN_DIR}/GCC.inc)
 include(${CSiBE_GEN_DIR}/Clang.inc)
 

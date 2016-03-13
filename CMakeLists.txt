@@ -7,6 +7,7 @@ set (CSiBE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Inlcude CSiBE's environment
 include(${CSiBE_DIR}/cmake/csibe-env.cmake)
+include(${CSiBE_DIR}/cmake/subprojects.cmake)
 
 set (CMAKE_BINARY_DIR ${PROJECT_BINARY_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -22,20 +23,23 @@ if (NOT DEFINED ENV{CSiBE_SUBPROJECTS})
   # Add CMSIS project subprojects
   # 'Generic' CMAKE_SYSTEM_NAME means 'an embedded system without OS' here.
   if ((CMAKE_SYSTEM_NAME STREQUAL "Generic"))
-    set (CMSIS_BASE_DIR ${CSiBE_SRC_DIR}/CMSIS)
-    set (CMSIS_SUBPROJECTS CMSIS/BasicMathFunctions CMSIS/CommonTables CMSIS/ComplexMathFunctions
-          CMSIS/ControllerFunctions CMSIS/FastMathFunctions CMSIS/FilteringFunctions CMSIS/MatrixFunctions
-          CMSIS/StatisticsFunctions CMSIS/SupportFunctions CMSIS/TransformFunctions)
-    list(APPEND SUBPROJECTS ${CMSIS_SUBPROJECTS})
+    list (APPEND SUBPROJECTS "CMSIS")
   endif ()
 
   # Add flex project except on embedded
   if ((NOT CMAKE_SYSTEM_NAME MATCHES "Generic"))
     list (APPEND SUBPROJECTS "flex-2.6.0")
   endif ()
+
 else ()
+
   set (SUBPROJECTS $ENV{CSiBE_SUBPROJECTS})
+  if ("${SUBPROJECTS}" MATCHES " ")
+    string (REPLACE " " ";" SUBPROJECTS $ENV{CSiBE_SUBPROJECTS})
+  endif()
 endif ()
+
+adopt_subprojects()
 
 # Setup the path and target names
 foreach (ELEM ${SUBPROJECTS})

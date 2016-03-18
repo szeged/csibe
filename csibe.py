@@ -110,11 +110,10 @@ def submodule_init_and_update(repository_path):
 
 if __name__ == "__main__":
 
-    toolchains = ["native",
-                  "clang-cortex-m0",
-                  "clang-cortex-m4",
-                  "gcc-cortex-m0",
-                  "gcc-cortex-m4"]
+    toolchains = []
+    for item in os.listdir('toolchain-files'):
+        if item.endswith('.cmake'):
+            toolchains.append(item[:-6])
 
     projects = []
     for item in os.listdir('src'):

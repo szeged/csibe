@@ -117,7 +117,8 @@ if __name__ == "__main__":
 
     projects = []
     for item in os.listdir('src'):
-        projects.append(item)
+        if os.path.isdir(os.path.join('gen', item)):
+            projects.append(item)
 
     helpProjects = "\navailable project names:\n\t" + "\n\t".join(projects)
     helpToolchains = "\n\navailable toolchain files:\n\t" + "\n\t".join(toolchains)

@@ -4,6 +4,7 @@ import argparse
 import os
 import subprocess
 import sys
+import textwrap
 
 class CSiBEBuilder(object):
 
@@ -119,7 +120,12 @@ if __name__ == "__main__":
     for item in os.listdir('src'):
         projects.append(item)
 
-    parser = argparse.ArgumentParser()
+    helpProjects = "\navailable project names:\n\t" + "\n\t".join(projects)
+    helpToolchains = "\n\navailable toolchain files:\n\t" + "\n\t".join(toolchains)
+
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent(helpProjects + helpToolchains))
 
     parser.add_argument(
         "-j",
@@ -173,7 +179,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "option",
         nargs="*",
-        help="can be project names, toolchain file, or compiler flags")
+        help="can be project names, toolchain files, or compiler flags")
 
     args, global_flags = parser.parse_known_args()
 

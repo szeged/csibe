@@ -110,7 +110,7 @@ def submodule_init_and_update(repository_path):
 
 if __name__ == "__main__":
 
-    toolchains = []
+    toolchains = ['native']
     for item in os.listdir('toolchain-files'):
         if item.endswith('.cmake'):
             toolchains.append(item[:-6])

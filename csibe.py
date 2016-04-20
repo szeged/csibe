@@ -181,12 +181,23 @@ if __name__ == "__main__":
         nargs="*",
         help="can be project names, toolchain files, or compiler flags")
 
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="turn on debug mode")
+
     args, global_flags = parser.parse_known_args()
 
     if args.globalflags:
         global_flags.append(args.globalflags)
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
+
+    if args.debug:
+        os.environ["CSiBE_DEBUG"] = os.getenv("CSiBE_DEBUG", "1")
+        os.environ["CSiBE_DEBUG_FILE"] = \
+            os.getenv("CSiBE_DEBUG_FILE", \
+                      os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
 
     submodule_init_and_update(csibe_path)
 

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     abspath = os.path.abspath(sys.argv[0])
     next = which_next(basename, abspath);
     if not next:
-        logger.error("Missing "%s" from PATH!" % basename)
+        logger.error("Missing '%s' from PATH!" % basename)
         sys.exit(1)
 
     clearopts=False

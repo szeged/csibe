@@ -3,34 +3,41 @@ language: python
 sudo: required
 dist: trusty
 
+matrix:
+  include:
+    # default gcc toolchains
+    #   native x86_64
+    #   gcc-cortex-m0
+    #   gcc-cortex-m4
+    - env:
+      - OPTS="native gcc-cortex-m0 gcc-cortex-m4"
+
+    # default clang toolchains
+    #   native x86_64
+    #   clang-cortex-m0
+    #   clang-cortex-m4
+    - env:
+      - CC=clang
+      - CXX=clang
+      - OPTS="native clang-cortex-m0 clang-cortex-m4"
+
+      before_script:
+      - wget http://llvm.org/releases/3.8.0/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+      - tar xf clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
+      - DIR=`pwd`/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04/bin
+      - sudo update-alternatives --install /usr/bin/clang clang $DIR/clang 100
+      - sudo update-alternatives --install /usr/bin/clang++ clang++ $DIR/clang++ 100
+      - sudo ln -s /usr/include/asm-generic /usr/include/asm
+
 install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y -o Dpkg::Options::="--force-overwrite" -f
+  - sudo apt-get install -y
       cmake
-      curl
-      freeglut3-dev
       g++
-      gperf
-      libbz2-dev
-      libegl1-mesa-dev
-      libfreetype6-dev
-      libgl1-mesa-dri
-      libgles2-mesa-dev
-      libglib2.0-dev
-      libglu1-mesa-dev
-      libosmesa6-dev
-      libssl-dev
-      libxmu-dev
-      libxmu6
-      python-pip
-      python-virtualenv
-      xorg-dev
-      ant
-      expect
-      lib32gcc1
-      lib32stdc++6
-      lib32z1
-      openjdk-7-jdk
+      gcc-arm-none-eabi
+      libc6-dev
+      libc6-dev-i386
+      python
+      wget
 
 script:
-  - python csibe.py
+  - python csibe.py $OPTS

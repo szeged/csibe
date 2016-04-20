@@ -3,13 +3,14 @@
 import sys
 import subprocess
 import os
+from csibe import logger
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     done = False
     rsfile = False
-    addopts = os.getenv('CSiBE_RUSTCFLAGS','').split()
+    addopts = os.getenv("CSiBE_RUSTCFLAGS","").split()
 
-    cmd = ['rustc-orig']
+    cmd = ["%s-orig" % os.path.abspath(__file__)]
 
     for arg in sys.argv[1:]:
         if "--" == arg:
@@ -22,8 +23,6 @@ if __name__ == '__main__':
     if rsfile:
         if not done:
             cmd.extend(addopts)
-    else:
-        cmd = ['rustc-orig']
-        cmd.extend(sys.argv[1:])
 
+    logger.debug("[Executing] %s" % " ".join(cmd))
     sys.exit(subprocess.call(cmd))

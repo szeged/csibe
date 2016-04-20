@@ -3,8 +3,9 @@
 import sys
 import subprocess
 import os
+from csibe import logger
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     def which_next(program, old):
         def is_exe(fpath):
             return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -15,25 +16,25 @@ if __name__ == '__main__':
                 return exe_file
         return None
 
-    optflags = ['-O', '-O0', '-O1', '-O2', '-O3', '-O4', '-Os', '-Oz']
+    optflags = ["-O", "-O0", "-O1", "-O2", "-O3", "-O4", "-Os", "-Oz"]
 
     basename = os.path.basename(sys.argv[0])
     abspath = os.path.abspath(sys.argv[0])
     next = which_next(basename, abspath);
     if not next:
-        logging.error("Missing '" + basename + "' from PATH!")
+        logger.error("Missing "%s" from PATH!" % basename)
         sys.exit(1)
 
     clearopts=False
     if basename.endswith("g++") or basename.endswith("clang++"):
-        flags = os.getenv('CSiBE_CXXFLAGS', '').split()
-        ext = ['.cxx', '.cpp']
+        flags = os.getenv("CSiBE_CXXFLAGS", "").split()
+        ext = [".cxx", ".cpp"]
     elif basename.endswith("rustc"):
-        flags = os.getenv('CSiBE_RUSTCFLAGS', '').split()
-        ext = ['.rs']
+        flags = os.getenv("CSiBE_RUSTCFLAGS", "").split()
+        ext = [".rs"]
     else:
-        flags = os.getenv('CSiBE_CFLAGS', '').split()
-        ext = ['.c']
+        flags = os.getenv("CSiBE_CFLAGS", "").split()
+        ext = [".c"]
 
     if flags and flags[0] == "!":
         clearopts = True
@@ -61,4 +62,5 @@ if __name__ == '__main__':
         cmd = [next]
         cmd.extend(sys.argv[1:])
 
+    logger.debug("[Executing] %s" % " ".join(cmd))
     sys.exit(subprocess.call(cmd))

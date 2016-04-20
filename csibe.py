@@ -19,19 +19,19 @@ class CSiBEBuilder(object):
         self.cxxflags = []
         self.rustcflags = []
 
-        if flags['cflags']:
-            self.cflags.extend(flags['cflags'])
+        if flags["cflags"]:
+            self.cflags.extend(flags["cflags"])
 
-        if flags['cxxflags']:
-            self.cxxflags.extend(flags['cxxflags'])
+        if flags["cxxflags"]:
+            self.cxxflags.extend(flags["cxxflags"])
 
-        if flags['rustcflags']:
-            self.rustcflags.extend(flags['rustcflags'])
+        if flags["rustcflags"]:
+            self.rustcflags.extend(flags["rustcflags"])
 
-        if flags['globalflags']:
-            self.cflags.extend(flags['globalflags'])
-            self.cxxflags.extend(flags['globalflags'])
-            self.rustcflags.extend(flags['globalflags'])
+        if flags["globalflags"]:
+            self.cflags.extend(flags["globalflags"])
+            self.cxxflags.extend(flags["globalflags"])
+            self.rustcflags.extend(flags["globalflags"])
 
         self.toolchain_build_dir = os.path.join(
                                        self.build_dir,
@@ -53,16 +53,16 @@ class CSiBEBuilder(object):
             self.cmake_toolchain_options = "-DCMAKE_TOOLCHAIN_FILE={}".format(self.toolchain_file_path)
 
         if self.projects:
-            os.environ['CSiBE_SUBPROJECTS'] = " ".join(self.projects);
+            os.environ["CSiBE_SUBPROJECTS"] = " ".join(self.projects);
 
         if self.cflags:
-            os.environ['CSiBE_CFLAGS'] = " ".join(self.cflags);
+            os.environ["CSiBE_CFLAGS"] = " ".join(self.cflags);
 
         if self.cxxflags:
-            os.environ['CSiBE_CXXFLAGS'] = " ".join(self.cxxflags);
+            os.environ["CSiBE_CXXFLAGS"] = " ".join(self.cxxflags);
 
         if self.rustcflags:
-            os.environ['CSiBE_RUSTCFLAGS'] = " ".join(self.rustcflags);
+            os.environ["CSiBE_RUSTCFLAGS"] = " ".join(self.rustcflags);
 
     def run_cmake(self):
         return subprocess.call(
@@ -110,14 +110,14 @@ def submodule_init_and_update(repository_path):
 
 if __name__ == "__main__":
 
-    toolchains = ['native']
-    for item in os.listdir('toolchain-files'):
-        if item.endswith('.cmake'):
+    toolchains = ["native"]
+    for item in os.listdir("toolchain-files"):
+        if item.endswith(".cmake"):
             toolchains.append(item[:-6])
 
     projects = []
-    for item in os.listdir('src'):
-        if os.path.isdir(os.path.join('gen', item)):
+    for item in os.listdir("src"):
+        if os.path.isdir(os.path.join("gen", item)):
             projects.append(item)
 
     helpProjects = "\navailable project names:\n\t" + "\n\t".join(projects)
@@ -158,22 +158,22 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--cflags",
-        action='append',
+        action="append",
         help="compiler flags for C files")
 
     parser.add_argument(
         "--cxxflags",
-        action='append',
+        action="append",
         help="compiler flags for CXX files")
 
     parser.add_argument(
         "--rustcflags",
-        action='append',
+        action="append",
         help="compiler flags for Rust files")
 
     parser.add_argument(
         "--globalflags",
-        action='append',
+        action="append",
         help="compiler flags for CXX files")
 
     parser.add_argument(
@@ -181,12 +181,23 @@ if __name__ == "__main__":
         nargs="*",
         help="can be project names, toolchain files, or compiler flags")
 
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="turn on debug mode")
+
     args, global_flags = parser.parse_known_args()
 
     if args.globalflags:
         global_flags.append(args.globalflags)
 
     csibe_path = os.path.dirname(os.path.realpath(__file__))
+
+    if args.debug:
+        os.environ["CSiBE_DEBUG"] = os.getenv("CSiBE_DEBUG", "1")
+        os.environ["CSiBE_DEBUG_FILE"] = \
+            os.getenv("CSiBE_DEBUG_FILE", \
+                      os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
 
     submodule_init_and_update(csibe_path)
 
@@ -210,10 +221,10 @@ if __name__ == "__main__":
 
     for target in targets_to_build:
         builder = CSiBEBuilder(csibe_path, args.build_dir, target, projects_to_build,
-            {'cflags' : args.cflags,
-             'cxxflags' : args.cxxflags,
-             'rustcflags' : args.rustcflags,
-             'globalflags' : global_flags})
+            {"cflags" : args.cflags,
+             "cxxflags" : args.cxxflags,
+             "rustcflags" : args.rustcflags,
+             "globalflags" : global_flags})
 
         cmake_return_value = builder.run_cmake()
         if cmake_return_value:

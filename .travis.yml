@@ -18,15 +18,18 @@ matrix:
     #   clang-cortex-m4
     - env:
       - CC=clang
-      - CXX=clang
+      - CXX=clang++
       - OPTS="native clang-cortex-m0 clang-cortex-m4"
 
       before_script:
       - wget http://llvm.org/releases/3.8.0/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
       - tar xf clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-      - DIR=`pwd`/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04/bin
+      - export DIR=`pwd`/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04/bin
+      - export PATH=$DIR:$PATH
       - sudo update-alternatives --install /usr/bin/clang clang $DIR/clang 100
+      - sudo update-alternatives --set clang $DIR/clang
       - sudo update-alternatives --install /usr/bin/clang++ clang++ $DIR/clang++ 100
+      - sudo update-alternatives --set clang++ $DIR/clang++
       - sudo ln -s /usr/include/asm-generic /usr/include/asm
 
 install:

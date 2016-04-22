@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import textwrap
+import urllib2
 
 class CSiBEBuilder(object):
 
@@ -108,6 +109,27 @@ def submodule_init_and_update(repository_path):
         return
 
 
+def download_old_testbed():
+    old_csibe_tar_filename = "CSiBE-v2.1.1.tar.gz"
+    old_csibe_dirname = os.path.join(csibe_path, "src", "old-csibe")
+    old_csibe_tar_filepath = os.path.join(old_csibe_dirname, old_csibe_tar_filename)
+
+    if os.path.isfile(old_csibe_tar_filepath):
+        sys.stdout.write("Old CSiBE testbed has already been downloaded.\n")
+    else:
+        if not os.path.isdir(old_csibe_dirname):
+            os.makedirs(old_csibe_dirname)
+
+        sys.stdout.write("Downloading old CSiBE testbed...\n")
+        response = urllib2.urlopen("http://www.csibe.org/old/down.php?id=11")
+        response_data = response.read()
+
+        with open(old_csibe_tar_filepath, "wb") as code:
+            code.write(response_data)
+
+        sys.stdout.write("Done downloading old CSiBE testbed.\n")
+
+
 if __name__ == "__main__":
 
     toolchains = ["native"]
@@ -186,6 +208,11 @@ if __name__ == "__main__":
         action="store_true",
         help="turn on debug mode")
 
+    parser.add_argument(
+        "--old-testbed",
+        action="store_true",
+        help="download and run the benchmarks on the old testbed")
+
     args, global_flags = parser.parse_known_args()
 
     if args.globalflags:
@@ -198,6 +225,10 @@ if __name__ == "__main__":
         os.environ["CSiBE_DEBUG_FILE"] = \
             os.getenv("CSiBE_DEBUG_FILE", \
                       os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
+
+    if args.old_testbed:
+        download_old_testbed()
+        sys.exit(0)
 
     submodule_init_and_update(csibe_path)
 

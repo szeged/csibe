@@ -4,6 +4,7 @@ import argparse
 import os
 import subprocess
 import sys
+import tarfile
 import textwrap
 import urllib2
 
@@ -113,6 +114,7 @@ def download_old_testbed():
     old_csibe_tar_filename = "CSiBE-v2.1.1.tar.gz"
     old_csibe_dirname = os.path.join(csibe_path, "src", "old-csibe")
     old_csibe_tar_filepath = os.path.join(old_csibe_dirname, old_csibe_tar_filename)
+    old_csibe_extracted_dirname = os.path.join(old_csibe_dirname, "CSiBE")
 
     if os.path.isfile(old_csibe_tar_filepath):
         sys.stdout.write("Old CSiBE testbed has already been downloaded.\n")
@@ -128,6 +130,16 @@ def download_old_testbed():
             code.write(response_data)
 
         sys.stdout.write("Done downloading old CSiBE testbed.\n")
+
+    if os.path.isdir(old_csibe_extracted_dirname):
+        sys.stdout.write("Old CSiBE testbed has already been extracted.\n")
+    else:
+        sys.stdout.write("Extracting old CSiBE testbed...\n")
+        old_csibe_tar_opened = tarfile.open(old_csibe_tar_filepath)
+        old_csibe_tar_opened.extractall(path=old_csibe_dirname)
+        old_csibe_tar_opened.close()
+
+        sys.stdout.write("Done extracting old CSiBE testbed.\n")
 
 
 if __name__ == "__main__":

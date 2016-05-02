@@ -1,9 +1,9 @@
 function(adopt_subprojects)
 
     # Add subprojects for CMSIS
-    set(NAME "CMSIS")
-    if (";${SUBPROJECTS};" MATCHES ";${NAME};")
-        list(REMOVE_ITEM SUBPROJECTS ${NAME})
+    set(CMSIS_NAME "CMSIS")
+    if (";${SUBPROJECTS};" MATCHES ";${CMSIS_NAME};")
+        list(REMOVE_ITEM SUBPROJECTS ${CMSIS_NAME})
         list(APPEND SUBPROJECTS
                 CMSIS/BasicMathFunctions
                 CMSIS/CommonTables

@@ -242,7 +242,6 @@ if __name__ == "__main__":
 
     if args.old_testbed:
         download_old_testbed(old_csibe_version)
-        sys.exit(0)
 
     submodule_init_and_update(csibe_path)
 

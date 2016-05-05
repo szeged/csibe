@@ -1,1 +1,4 @@
 set (PROJECT_SOURCE_DIR ${OLD_CSIBE_BASE_DIR}/CSiBE/src/${PROJECT_NAME})
+set (PROJECT_INCLUDE_DIR ${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
+
+add_compile_options (-DHAVE_CONFIG_H)

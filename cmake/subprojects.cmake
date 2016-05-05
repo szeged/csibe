@@ -25,7 +25,8 @@ function(adopt_subprojects)
         list(REMOVE_ITEM SUBPROJECTS ${OLD_CSIBE_PROJECT_NAME})
         list(APPEND SUBPROJECTS
                 CSiBE-v2.1.1/bzip2-1.0.2
-                CSiBE-v2.1.1/cg_compiler_opensrc)
+                CSiBE-v2.1.1/cg_compiler_opensrc
+                CSiBE-v2.1.1/compiler)
         set(SUBPROJECTS ${SUBPROJECTS} PARENT_SCOPE)
         set(OLD_CSIBE_BASE_DIR ${CSiBE_SRC_DIR}/CSiBE-v2.1.1 PARENT_SCOPE)
     endif()

@@ -30,7 +30,8 @@ function(adopt_subprojects)
                 CSiBE-v2.1.1/flex-2.5.31
                 CSiBE-v2.1.1/jikespg-1.3
                 CSiBE-v2.1.1/jpeg-6b
-                CSiBE-v2.1.1/libmspack)
+                CSiBE-v2.1.1/libmspack
+                CSiBE-v2.1.1/libpng-1.2.5)
         set(SUBPROJECTS ${SUBPROJECTS} PARENT_SCOPE)
         set(OLD_CSIBE_BASE_DIR ${CSiBE_SRC_DIR}/CSiBE-v2.1.1 PARENT_SCOPE)
     endif()

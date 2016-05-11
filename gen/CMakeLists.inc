@@ -1,4 +1,4 @@
-file(GLOB SRC ${PROJECT_SOURCE_DIR}/*.c)
+file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/*.c)
 
 add_library(${PROJECT_NAME} OBJECT ${SRC})
 

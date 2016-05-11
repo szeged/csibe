@@ -5,12 +5,21 @@ if ((PROJECT_NAME STREQUAL "flex-2.5.31"))
 endif ()
 
 if ((PROJECT_NAME STREQUAL "jikespg-1.3"))
-  set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
+  #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
 endif ()
 
 if ((PROJECT_NAME STREQUAL "libmspack"))
   add_compile_options (-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE)
-  set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/mspack")
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/libmspack/mspack)
+  #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/mspack")
+endif ()
+
+if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/mpeg2dec-0.3.1/include)
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
+  # This define has been dropped since glibc 2.17
+  add_compile_options (-D__GLIBC_HAVE_LONG_LONG)
+  #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
 endif ()
 
 # DEBUG

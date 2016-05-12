@@ -22,6 +22,11 @@ if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))
   #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
 endif ()
 
+if ((PROJECT_NAME STREQUAL "OpenTCP-1.0.4"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/OpenTCP-1.0.4/include)
+  add_compile_options (-D__IO_NEAR -D__io=)
+endif ()
+
 # DEBUG
 message ("PROJECT_RELATIVE_SOURCE_PATH: ${PROJECT_RELATIVE_SOURCE_PATH}")
 

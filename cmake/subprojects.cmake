@@ -36,7 +36,8 @@ function(adopt_subprojects)
                 CSiBE-v2.1.1/mpeg2dec-0.3.1
                 CSiBE-v2.1.1/OpenTCP-1.0.4
                 CSiBE-v2.1.1/teem-1.6.0-src
-                CSiBE-v2.1.1/unrarlib-0.4.0)
+                CSiBE-v2.1.1/unrarlib-0.4.0
+                CSiBE-v2.1.1/zlib-1.1.4)
         set(SUBPROJECTS ${SUBPROJECTS} PARENT_SCOPE)
         set(OLD_CSIBE_BASE_DIR ${CSiBE_SRC_DIR}/CSiBE-v2.1.1 PARENT_SCOPE)
     endif()

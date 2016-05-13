@@ -27,6 +27,16 @@ if ((PROJECT_NAME STREQUAL "OpenTCP-1.0.4"))
   add_compile_options (-D__IO_NEAR -D__io=)
 endif ()
 
+if ((PROJECT_NAME STREQUAL "teem-1.6.0-src"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/teem-1.6.0-src/include)
+  add_compile_options (-DTEEM_32BIT=1
+                       -DTEEM_ENDIAN=1234
+                       -DTEEM_QNANHIBIT=1
+                       -DTEEM_BIGBITFIELD=1
+                       -DTEEM_DIO=0
+                       -DTEEM32BIT=1)
+endif ()
+
 # DEBUG
 message ("PROJECT_RELATIVE_SOURCE_PATH: ${PROJECT_RELATIVE_SOURCE_PATH}")
 

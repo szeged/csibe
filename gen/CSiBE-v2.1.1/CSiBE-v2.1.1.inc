@@ -37,6 +37,10 @@ if ((PROJECT_NAME STREQUAL "teem-1.6.0-src"))
                        -DTEEM32BIT=1)
 endif ()
 
+if ((PROJECT_NAME STREQUAL "unrarlib-0.4.0"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/unrarlib-0.4.0/unrarlib)
+endif ()
+
 # DEBUG
 message ("PROJECT_RELATIVE_SOURCE_PATH: ${PROJECT_RELATIVE_SOURCE_PATH}")
 

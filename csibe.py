@@ -153,6 +153,8 @@ if __name__ == "__main__":
 
     projects = []
     for item in os.listdir("src"):
+        if item == old_csibe_version:
+            continue
         if os.path.isdir(os.path.join("gen", item)):
             projects.append(item)
 
@@ -242,8 +244,8 @@ if __name__ == "__main__":
 
     if args.old_testbed:
         download_old_testbed(old_csibe_version)
-
-    submodule_init_and_update(csibe_path)
+    else:
+        submodule_init_and_update(csibe_path)
 
     # Target selection
     targets_to_build = []
@@ -259,9 +261,12 @@ if __name__ == "__main__":
 
     # Project selection
     projects_to_build = []
-    for opt in args.option:
-        if opt in projects:
-            projects_to_build.append(opt)
+    if args.old_testbed:
+        os.environ["CSiBE_SUBPROJECTS"] = old_csibe_version
+    else:
+        for opt in args.option:
+            if opt in projects:
+                projects_to_build.append(opt)
 
     for target in targets_to_build:
         builder = CSiBEBuilder(csibe_path, args.build_dir, target, projects_to_build,

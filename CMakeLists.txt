@@ -29,7 +29,6 @@ if (NOT DEFINED ENV{CSiBE_SUBPROJECTS})
   # Add flex project except on embedded
   if ((NOT CMAKE_SYSTEM_NAME MATCHES "Generic"))
     list (APPEND SUBPROJECTS "flex-2.6.0")
-    list (APPEND SUBPROJECTS "CSiBE-v2.1.1")
   endif ()
 
 else ()

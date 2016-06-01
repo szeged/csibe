@@ -41,13 +41,18 @@ add_custom_target (${PROJECT_NAME}_objects
 )
 
 add_custom_target (${PROJECT_NAME}_size
-    #DEPENDS ${PROJECT_NAME}_objects
+    DEPENDS ${PROJECT_NAME}_objects
     DEPENDS ${SIZE_RESULT}
     COMMAND
         ${SUM_SIZES} ${PROJECT_BINARY_DIR} ${SIZE_RESULT}
 )
 
 add_custom_command (OUTPUT ${SIZE_RESULT}
-  COMMAND ${SUM_SIZES} ${PROJECT_BINARY_DIR} ${SIZE_RESULT}
-  DEPENDS ${PROJECT_NAME}_objects
+    #DEPENDS ${PROJECT_NAME}_objects
+    COMMAND
+        CSiBE_BIN_DIR=${CSiBE_BIN_DIR}
+        PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}
+        PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+        PROJECT_GEN_DIR=${PROJECT_GEN_DIR}
+          ${PROJECT_GEN_DIR}/size_result.py
 )

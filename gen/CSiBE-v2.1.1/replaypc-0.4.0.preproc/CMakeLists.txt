@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project (lwip-0.5.3.preproc)
+project (replaypc-0.4.0.preproc)
 
 include(${CSiBE_DIR}/cmake/csibe-env.cmake)
 include (${CSiBE_GEN_DIR}/CSiBE-v2.1.1/CSiBE-v2.1.1.inc)

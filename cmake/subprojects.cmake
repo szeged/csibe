@@ -33,6 +33,7 @@ function(adopt_subprojects)
                 CSiBE-v2.1.1/libmspack
                 CSiBE-v2.1.1/libpng-1.2.5
                 CSiBE-v2.1.1/lwip-0.5.3.preproc
+                CSiBE-v2.1.1/replaypc-0.4.0.preproc
                 CSiBE-v2.1.1/mpgcut-1.1
                 CSiBE-v2.1.1/mpeg2dec-0.3.1
                 CSiBE-v2.1.1/OpenTCP-1.0.4

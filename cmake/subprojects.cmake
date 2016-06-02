@@ -32,10 +32,13 @@ function(adopt_subprojects)
                 CSiBE-v2.1.1/jpeg-6b
                 CSiBE-v2.1.1/libmspack
                 CSiBE-v2.1.1/libpng-1.2.5
-                CSiBE-v2.1.1/mpgcut-1.1
+                CSiBE-v2.1.1/lwip-0.5.3.preproc
                 CSiBE-v2.1.1/mpeg2dec-0.3.1
+                CSiBE-v2.1.1/mpgcut-1.1
                 CSiBE-v2.1.1/OpenTCP-1.0.4
+                CSiBE-v2.1.1/replaypc-0.4.0.preproc
                 CSiBE-v2.1.1/teem-1.6.0-src
+                CSiBE-v2.1.1/ttt-0.10.1.preproc
                 CSiBE-v2.1.1/unrarlib-0.4.0
                 CSiBE-v2.1.1/zlib-1.1.4)
         set(SUBPROJECTS ${SUBPROJECTS} PARENT_SCOPE)

@@ -14,6 +14,9 @@ echo "Compiler version,$COMPILER_VERSION" >> $OUT
 echo "Compiler flags,$FLAGS" >> $OUT
 echo "" >> $OUT
 
+echo "Date: `date +\"%F\"`" >> $OUT
+echo "" >> $OUT
+
 for F in $FILES
 do
 	DIR=`dirname $F`

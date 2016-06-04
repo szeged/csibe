@@ -5,21 +5,15 @@ dist: trusty
 
 matrix:
   include:
-    # default gcc toolchains
-    #   native x86_64
-    #   gcc-cortex-m0
-    #   gcc-cortex-m4
+    # GCC-based compiler pass
     - env:
-      - OPTS="native gcc-cortex-m0 gcc-cortex-m4"
+      - TOOLCHAINS="gcc-cortex-m0 gcc-cortex-m4"
 
-    # default clang toolchains
-    #   native x86_64
-    #   clang-cortex-m0
-    #   clang-cortex-m4
+    # Clang-based compiler pass
     - env:
       - CC=clang
       - CXX=clang++
-      - OPTS="native clang-cortex-m0 clang-cortex-m4"
+      - TOOLCHAINS="clang-cortex-m0 clang-cortex-m4"
 
       before_script:
       - wget http://llvm.org/releases/3.8.0/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
@@ -43,4 +37,6 @@ install:
       wget
 
 script:
-  - python csibe.py $OPTS
+  - python csibe.py native
+  - python csibe.py native CSiBE-v2.1.1
+  - python csibe.py $TOOLCHAINS

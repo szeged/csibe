@@ -23,6 +23,11 @@ if __name__ == "__main__":
 
     compiler_additional_flags = ["-fno-builtin"]
 
+    if c_compiler_name.endswith("g++") or c_compiler_name.endswith("clang++"):
+        compiler_additional_flags.extend(os.getenv("CSiBE_CXXFLAGS", "").split())
+    elif c_compiler_name.endswith("gcc") or c_compiler_name.endswith("clang"):
+        compiler_additional_flags.extend(os.getenv("CSiBE_CFLAGS", "").split())
+
     compiler_call_list = [c_compiler_name]
     compiler_call_list.extend(compiler_preprocessed_flags)
     compiler_call_list.extend(compiler_additional_flags)

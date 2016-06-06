@@ -123,7 +123,7 @@ def download_old_testbed(version):
             os.makedirs(old_csibe_dirname)
 
         sys.stdout.write("Downloading {}...\n".format(version))
-        response = urllib2.urlopen("http://www.csibe.org/old/down.php?id=11")
+        response = urllib2.urlopen("https://github.com/szeged/csibe/releases/download/CSiBE-v2.1.1/CSiBE-v2.1.1.tar.gz")
         response_data = response.read()
 
         with open(old_csibe_tar_filepath, "wb") as code:
@@ -157,6 +157,7 @@ if __name__ == "__main__":
             continue
         if os.path.isdir(os.path.join("gen", item)):
             projects.append(item)
+    projects.append(old_csibe_version)
 
     helpProjects = "\navailable project names:\n\t" + "\n\t".join(projects)
     helpToolchains = "\n\navailable toolchain files:\n\t" + "\n\t".join(toolchains)
@@ -224,11 +225,6 @@ if __name__ == "__main__":
         action="store_true",
         help="turn on debug mode")
 
-    parser.add_argument(
-        "--old-testbed",
-        action="store_true",
-        help="download {} and exit".format(old_csibe_version))
-
     args, global_flags = parser.parse_known_args()
 
     if args.globalflags:
@@ -242,10 +238,7 @@ if __name__ == "__main__":
             os.getenv("CSiBE_DEBUG_FILE", \
                       os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
 
-    if args.old_testbed:
-        download_old_testbed(old_csibe_version)
-    else:
-        submodule_init_and_update(csibe_path)
+    submodule_init_and_update(csibe_path)
 
     # Target selection
     targets_to_build = []
@@ -261,12 +254,11 @@ if __name__ == "__main__":
 
     # Project selection
     projects_to_build = []
-    if args.old_testbed:
-        os.environ["CSiBE_SUBPROJECTS"] = old_csibe_version
-    else:
-        for opt in args.option:
-            if opt in projects:
-                projects_to_build.append(opt)
+    for opt in args.option:
+        if opt in projects:
+            if opt == old_csibe_version:
+                download_old_testbed(old_csibe_version)
+            projects_to_build.append(opt)
 
     for target in targets_to_build:
         builder = CSiBEBuilder(csibe_path, args.build_dir, target, projects_to_build,

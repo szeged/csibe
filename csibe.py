@@ -123,7 +123,7 @@ def download_old_testbed(version):
             os.makedirs(old_csibe_dirname)
 
         sys.stdout.write("Downloading {}...\n".format(version))
-        response = urllib2.urlopen("http://www.csibe.org/old/down.php?id=11")
+        response = urllib2.urlopen("https://github.com/szeged/csibe/releases/download/CSiBE-v2.1.1/CSiBE-v2.1.1.tar.gz")
         response_data = response.read()
 
         with open(old_csibe_tar_filepath, "wb") as code:

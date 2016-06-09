@@ -8,7 +8,7 @@ MAINTAINER Gabor Loki
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y build-essential bash git nano curl cmake clang python virtualenv python-pip freeglut3-dev autoconf libfreetype6-dev libgl1-mesa-dri libglib2.0-dev xorg-dev gperf libssl-dev libbz2-dev libosmesa6-dev libxmu6 libxmu-dev libglu1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev
+RUN apt-get install -y build-essential bash git nano vim curl cmake clang python virtualenv python-pip freeglut3-dev autoconf libfreetype6-dev libgl1-mesa-dri libglib2.0-dev xorg-dev gperf libssl-dev libbz2-dev libosmesa6-dev libxmu6 libxmu-dev libglu1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdbus-1-dev
 RUN apt-get install -y gcc-arm-none-eabi gcc-multilib
 
 ENV USER=csibe

@@ -11,7 +11,12 @@ endif ()
 if ((PROJECT_NAME STREQUAL "libmspack"))
   add_compile_options (-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE)
   include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/libmspack/mspack)
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
   #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/mspack")
+endif ()
+
+if ((PROJECT_NAME STREQUAL "libpng-1.2.5"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include/zlib)
 endif ()
 
 if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))

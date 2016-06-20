@@ -26,6 +26,7 @@ if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))
   include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
   # This define has been dropped since glibc 2.17
   add_compile_options (-D__GLIBC_HAVE_LONG_LONG)
+  add_compile_options (-DDUMMY_ENUM_VALUE=CSIBE_ENUM_VALUE=0xFFFFFFFF)
   #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
 endif ()
 

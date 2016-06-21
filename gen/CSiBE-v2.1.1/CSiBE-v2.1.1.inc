@@ -11,7 +11,14 @@ endif ()
 if ((PROJECT_NAME STREQUAL "libmspack"))
   add_compile_options (-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE)
   include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/libmspack/mspack)
+  if ((CMAKE_SYSTEM_NAME STREQUAL "Generic"))
+    include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
+  endif ()
   #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/mspack")
+endif ()
+
+if ((PROJECT_NAME STREQUAL "libpng-1.2.5"))
+  include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include/zlib)
 endif ()
 
 if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))
@@ -19,6 +26,7 @@ if ((PROJECT_NAME STREQUAL "mpeg2dec-0.3.1"))
   include_directories (${OLD_CSIBE_BASE_DIR}/CSiBE/src/include)
   # This define has been dropped since glibc 2.17
   add_compile_options (-D__GLIBC_HAVE_LONG_LONG)
+  add_compile_options (-DDUMMY_ENUM_VALUE=CSIBE_ENUM_VALUE=0xFFFFFFFF)
   #set (PROJECT_RELATIVE_SOURCE_PATH "${PROJECT_RELATIVE_SOURCE_PATH}/src")
 endif ()
 

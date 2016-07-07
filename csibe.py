@@ -240,8 +240,6 @@ if __name__ == "__main__":
             os.getenv("CSiBE_DEBUG_FILE", \
                       os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
 
-    #submodule_init_and_update(csibe_path)
-
     # Target selection
     targets_to_build = []
     for opt in args.option:

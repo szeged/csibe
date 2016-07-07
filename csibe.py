@@ -144,18 +144,19 @@ def download_old_testbed(version):
 
 if __name__ == "__main__":
 
+    csibe_path = os.path.dirname(os.path.realpath(__file__))
     old_csibe_version = "CSiBE-v2.1.1"
 
     toolchains = ["native"]
-    for item in os.listdir("toolchain-files"):
+    for item in os.listdir(os.path.join(csibe_path, "toolchain-files")):
         if item.endswith(".cmake"):
             toolchains.append(item[:-6])
 
     projects = []
-    for item in os.listdir("src"):
+    for item in os.listdir(os.path.join(csibe_path, "src")):
         if item == old_csibe_version:
             continue
-        if os.path.isdir(os.path.join("gen", item)):
+        if os.path.isdir(os.path.join(csibe_path, "gen", item)):
             projects.append(item)
     projects.append(old_csibe_version)
 
@@ -229,8 +230,6 @@ if __name__ == "__main__":
 
     if args.globalflags:
         global_flags.append(args.globalflags)
-
-    csibe_path = os.path.dirname(os.path.realpath(__file__))
 
     if args.debug:
         os.environ["CSiBE_DEBUG"] = os.getenv("CSiBE_DEBUG", "1")

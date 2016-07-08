@@ -86,13 +86,14 @@ class CSiBEBuilder(object):
              "size"])
 
 
-def submodule_init_and_update(repository_path):
+def submodule_init_and_update(repository_path, submodule_path):
     init_return_value = subprocess.call(
                             ["git",
                              "-C",
                              repository_path,
                              "submodule",
-                             "init"])
+                             "init",
+                             submodule_path])
 
     if init_return_value:
         sys.stdout.write("Warning: Failed to execute git submodule init.")
@@ -103,7 +104,8 @@ def submodule_init_and_update(repository_path):
                                "-C",
                                repository_path,
                                "submodule",
-                               "update"])
+                               "update",
+                               submodule_path])
 
     if update_return_value:
         sys.stdout.write("Warning: Failed to execute git submodule update.")
@@ -238,8 +240,6 @@ if __name__ == "__main__":
             os.getenv("CSiBE_DEBUG_FILE", \
                       os.path.join(os.path.abspath(args.build_dir), "csibe-debug.log"))
 
-    submodule_init_and_update(csibe_path)
-
     # Target selection
     targets_to_build = []
     for opt in args.option:
@@ -258,6 +258,10 @@ if __name__ == "__main__":
         if opt in projects:
             if opt == old_csibe_version:
                 download_old_testbed(old_csibe_version)
+            if opt == "CMSIS":
+                submodule_init_and_update(csibe_path, os.path.join(csibe_path, "src", "CMSIS"))
+            if opt == "servo":
+                submodule_init_and_update(csibe_path, os.path.join(csibe_path, "src", "servo"))
             projects_to_build.append(opt)
 
     for target in targets_to_build:

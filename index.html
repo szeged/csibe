@@ -9,7 +9,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
 <body>
@@ -41,8 +41,8 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Services <span class="caret"></span></a>
                         <ul class="dropdown-menu" aria-labelledby="about-us">
-                            <li><a href="#notavailable" data-toggle="modal" data-target="#notavailable">Compiler monitor</a></li>
-                            <li><a href="#notavailable" data-toggle="modal" data-target="#notavailable">Project observer</a></li>
+                            <li><a href="#compiler-monitor" data-toggle="modal" data-target="#compiler-monitor">Compiler monitor</a></li>
+                            <li><a href="#project-observer" data-toggle="modal" data-target="#project-observer">Project observer</a></li>
                             <li><a href="http://www.csibe.org/old">Historical data</a></li>
                         </ul>
                     </li>
@@ -65,6 +65,90 @@
           </div>
           <div class="modal-body">
             Stay tuned for more information to come!
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="compiler-monitor" tabindex="-1" role="dialog" aria-labelledby="compiler-monitorLabel">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="compiler-monitorLabel">Compiler monitor</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+
+                <div class="dropdown" style="float: left; margin-right: 10px;">
+                  <button class="btn btn-primary dropdown-toggle" id="menu1" type="button" data-toggle="dropdown">Architecture&nbsp;<span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                    <li role="presentation"><a id="compiler-monitor-arm" role="menuitem" tabindex="-1" href="#">ARM</a></li>
+                    <li role="presentation"><a id="compiler-monitor-x86" role="menuitem" tabindex="-1" href="#">x86</a></li>
+                    <li role="presentation" class="divider"></li>
+                    <li role="presentation"><a id="compiler-monitor-all" role="menuitem" tabindex="-1" href="#">All</a></li>
+                  </ul>
+                </div>
+
+                <div class="dropdown" style="float: left; margin-right: 10px;">
+                  <button class="btn btn-primary dropdown-toggle" id="menu2" type="button" data-toggle="dropdown">Date&nbsp;<span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu2">
+                    <li role="presentation"><a id="compiler-monitor-last-20-days" role="menuitem" tabindex="-1" href="#">Last 20 days</a></li>
+                    <li role="presentation" class="divider"></li>
+                    <li role="presentation"><a id="compiler-monitor-all-date" role="menuitem" tabindex="-1" href="#">All</a></li>
+                  </ul>
+                </div>
+
+            </div>
+
+            <div id="chart_div_cm" style="width: 100%; height: 500px;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="project-observer" tabindex="-1" role="dialog" aria-labelledby="project-observerLabel">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="project-observerLabel">Project observer</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+
+                <div class="dropdown" style="float: left; margin-right: 10px;">
+                  <button class="btn btn-primary dropdown-toggle" id="menu1" type="button" data-toggle="dropdown">Architecture&nbsp;<span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+                    <li role="presentation"><a id="project-observer-arm" role="menuitem" tabindex="-1" href="#">ARM</a></li>
+                    <li role="presentation"><a id="project-observer-x86" role="menuitem" tabindex="-1" href="#">x86</a></li>
+                    <li role="presentation" class="divider"></li>
+                    <li role="presentation"><a id="project-observer-all" role="menuitem" tabindex="-1" href="#">All</a></li>
+                  </ul>
+                </div>
+
+                <div class="dropdown" style="float: left; margin-right: 10px;">
+                  <button class="btn btn-primary dropdown-toggle" id="menu2" type="button" data-toggle="dropdown">Date&nbsp;<span class="caret"></span></button>
+                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu2">
+                    <li role="presentation"><a id="project-observer-last-20-days" role="menuitem" tabindex="-1" href="#">Last 20 days</a></li>
+                    <li role="presentation" class="divider"></li>
+                    <li role="presentation"><a id="project-observer-all-date" role="menuitem" tabindex="-1" href="#">All</a></li>
+                  </ul>
+                </div>
+
+                <select id="project-name"></select>
+
+            </div>
+
+            <div id="chart_div_po" style="width: 100%; height: 500px;"></div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -197,6 +281,100 @@
     <!-- Custom Javascript -->
     <script src="js/custom.js"></script>
 
+    <!-- CSiBe results charts -->
+    <script type="text/javascript" src="js/chart.js"></script>
+    <script type="text/javascript">
+        var arch = "all";
+        var from_date = "2016-01-01";
+
+        var project_selector = document.getElementById('project-name');
+        for (var i = 0; i < project_names.length; i++) {
+            project_selector.options[project_selector.options.length]
+                                        = new Option(project_names[i], project_names[i]);
+        }
+
+        $('#compiler-monitor').on('shown.bs.modal', function() {
+            chart_div = document.querySelector('#chart_div_cm');
+            arch = "all";
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#compiler-monitor-arm').on('click', function(e) {
+            arch = "arm";
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#compiler-monitor-x86').on('click', function(e) {
+            arch = "x86";
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#compiler-monitor-all').on('click', function(e) {
+            arch = "all";
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#compiler-monitor-last-20-days').on('click', function(e) {
+            var today = new Date();
+            from_date = today.setDate(today.getDate() - 20);
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#compiler-monitor-all-date').on('click', function(e) {
+            from_date = "2016-01-01";
+            showPlatforms(arch, "all", from_date);
+        });
+
+        $('#project-observer').on('shown.bs.modal', function() {
+            chart_div = document.querySelector('#chart_div_po');
+            arch = "all";
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-observer-arm').on('click', function(e) {
+            arch = "arm";
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-observer-x86').on('click', function(e) {
+            arch = "x86";
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-observer-all').on('click', function(e) {
+            arch = "all";
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-observer-last-20-days').on('click', function(e) {
+            var today = new Date();
+            from_date = today.setDate(today.getDate() - 20);
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-observer-all-date').on('click', function(e) {
+            from_date = "2016-01-01";
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+
+        $('#project-name').on('change', function(e) {
+            showPlatforms(arch,
+                          project_selector.options[project_selector.selectedIndex].value,
+                          from_date);
+        });
+    </script>
 </body>
 
 </html>

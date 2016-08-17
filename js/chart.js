@@ -66,6 +66,7 @@ function findAlias(name) {
 }
 
 function drawChart(columns, rows, title) {
+    var chart = new google.visualization.LineChart(chart_div);
     var data = new google.visualization.DataTable();
 
     for (var i = 0; i < columns.length; i++) {
@@ -76,11 +77,30 @@ function drawChart(columns, rows, title) {
     data.addRows(rows);
 
     var options = {
-        title: title,
-        curveType: 'function'
+        title : title,
+        curveType : "function",
+        tooltip : {
+            isHtml : true,
+            trigger : "both" // focus and selection
+        }
     };
 
-    var chart = new google.visualization.LineChart(chart_div);
+    chart.setAction({
+        id: 'show_csv',
+        text: 'Show CSV file',
+        action: function() {
+            var selection = chart.getSelection()[0];
+            var platform = columns[selection.column][0];
+            var date = new Date(rows[selection.row][0]);
+            for (var file of repository_tree) {
+                if (file.platform == platform && file.date.getTime() == date.getTime()) {
+                    window.open(raw_url_prefix + file.path, '_blank');
+                    return;
+                }
+            }
+        }
+    });
+
     chart.draw(data, options);
 }
 

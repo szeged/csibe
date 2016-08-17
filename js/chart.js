@@ -34,33 +34,39 @@ var project_names = [
 
 var chart_div = document.querySelector('#chart_div_cm');
 
+var chart_filter = {
+    arch : "all",
+    project : "all",
+    from_date : "2016-01-01"
+};
+
 var tree_url = "https://api.github.com/repos/"
                 + owner + "/" + repository + "/git/trees/" + branch + "?recursive=1";
 
-var repository_tree;
+var repository_tree = [];
 
 var raw_url_prefix = "https://raw.githubusercontent.com/"
                 + owner + "/" + repository + "/" + branch + "/";
 
-var all_results = [];
-var all_results_initialized = false;
+var csibe_results = [];
 
 google.charts.load('current', { packages: ['corechart', 'line'] });
 
 function findAlias(name) {
     switch (name) {
         case "clang-trunk-cortex-m0":
-            return "Cortex-M0";
+            return "Clang, Cortex-M0";
         case "clang-trunk-cortex-m4":
-            return "Cortex-M4";
+            return "Clang, Cortex-M4";
         case "clang-trunk-x86_64":
-            return "x86-64";
+            return "Clang, x86-64";
         default:
             return name;
     }
 }
 
 function drawChart(columns, rows, title) {
+    var chart = new google.visualization.LineChart(chart_div);
     var data = new google.visualization.DataTable();
 
     for (var i = 0; i < columns.length; i++) {
@@ -71,11 +77,30 @@ function drawChart(columns, rows, title) {
     data.addRows(rows);
 
     var options = {
-        title: title,
-        curveType: 'function'
+        title : title,
+        curveType : "function",
+        tooltip : {
+            isHtml : true,
+            trigger : "both" // focus and selection
+        }
     };
 
-    var chart = new google.visualization.LineChart(chart_div);
+    chart.setAction({
+        id: 'show_csv',
+        text: 'Show CSV file',
+        action: function() {
+            var selection = chart.getSelection()[0];
+            var platform = columns[selection.column][0];
+            var date = new Date(rows[selection.row][0]);
+            for (var file of repository_tree) {
+                if (file.platform == platform && file.date.getTime() == date.getTime()) {
+                    window.open(raw_url_prefix + file.path, '_blank');
+                    return;
+                }
+            }
+        }
+    });
+
     chart.draw(data, options);
 }
 
@@ -131,9 +156,21 @@ function getURL(url) {
 };
 
 function downloadRepositoryTree() {
-    if (repository_tree === undefined) {
+    if (repository_tree.length == 0) {
         return getURL(tree_url).then(function(response) {
-            repository_tree = JSON.parse(response.content).tree;
+            var tree = JSON.parse(response.content).tree;
+            for (var node of tree) {
+                if (node.type == "blob" && node.path.endsWith(".csv")) {
+                    var node_path = node.path.split('/');
+                    var csv_node = {
+                        path : node.path,
+                        platform : node_path[0],
+                        date : new Date(node_path[3].substring(0, 10)),
+                        downloaded: false
+                    };
+                    repository_tree.push(csv_node);
+                }
+            }
         }, function(status) {
             console.log("Can't access repository tree.");
             return null;
@@ -142,84 +179,78 @@ function downloadRepositoryTree() {
         return Promise.resolve();
 }
 
-function getFileList(targets) {
+function getFilteredFileList() {
     return downloadRepositoryTree().then(function() {
         var file_list = [];
+        var from_date = new Date(chart_filter.from_date);
         for (var node of repository_tree) {
-            var platform = node.path.split('/')[0];
-            if (node.type == "blob" && node.path.endsWith(".csv") && targets.includes(platform))
-                file_list.push(node.path);
+            if ((chart_filter.arch == "all"
+                || chart_filter.arch == "arm" && arm_targets.includes(node.platform)
+                || chart_filter.arch == "x86" && x86_targets.includes(node.platform))
+                && new Date(node.date) >= from_date)
+                file_list.push(node);
         }
         return file_list;
     });
 }
 
-function downloadResultsInParallel(targets) {
+function downloadNecessaryResults() {
+    var pending = [];
     var results = [];
-    return getFileList(targets).then(function(list) {
-        for (var i = 0; i < list.length; i++) {
-            list[i] = getURL(raw_url_prefix + list[i] + '?' + new Date().getTime()).then(function(response) {
-                results.push(csvToJSON(response.content, response.url));
-            });
+    return getFilteredFileList().then(function(list) {
+        for (var node of list) {
+            if (!node.downloaded) {
+                node.downloaded = true;
+                pending.push(getURL(raw_url_prefix + node.path + '?' + new Date().getTime()).then(function(response) {
+                    results.push(csvToJSON(response.content, response.url));
+                }));
+            }
         }
-        return list;
-    }).then(function(promise_list) {
-        return Promise.all(promise_list).then(function() {
-            return results;
+        return pending;
+    }).then(function(pending_list) {
+        return Promise.all(pending_list).then(function() {
+            csibe_results = csibe_results.concat(results);
         });
     });
 }
 
-function downloadAllResults() {
-    if (all_results_initialized == false) {
-        return downloadResultsInParallel(arm_targets).then(function(arm_results) {
-            all_results = all_results.concat(arm_results);
-            return downloadResultsInParallel(x86_targets).then(function(x86_results) {
-                all_results = all_results.concat(x86_results);
-                all_results_initialized = true;
-            });
-        });
-    } else {
-        return Promise.resolve();
-    }
-}
-
-function getIndexByColumnName(columns, name) {
-    for (var i = 0; i < columns.length; i++) {
-        if (columns[i][0] == name)
-            return i;
-    }
-}
-
-function summarizePlatformResultsByProject(project_name) {
+function summarizePlatformResultsByProject() {
     var columns = [
         ["Date", "string"]
     ];
-    var platform_names = arm_targets.concat(x86_targets);
-    for (var i = 0; i < platform_names.length; i++)
-        columns.push([platform_names[i], "number"]);
+
+    var arch = chart_filter.arch;
+    if (arch == "all" || arch == "arm") {
+        for (var platform of arm_targets)
+            columns.push([platform, "number"]);
+    }
+    if (arch == "all" || arch == "x86") {
+        for (var platform of x86_targets)
+            columns.push([platform, "number"]);
+    }
 
     var rows = [];
 
-    return downloadAllResults().then(function() {
-        for (var i = 0; i < all_results.length; i++) {
-            var current_result = all_results[i];
+    return downloadNecessaryResults().then(function() {
+        for (var current_result of csibe_results) {
+            // Filter by date
+            if (new Date(current_result.Date) < new Date(chart_filter.from_date))
+                continue;
 
+            // Summarize all projects or just the specified one
             var sum = 0;
-            if (project_name != "all") {
-                var current_project = current_result[project_name];
-                for (var k = 0; k < current_project.length; k++) {
-                    var file = current_project[k];
+            if (chart_filter.project != "all") {
+                var current_project = current_result[chart_filter.project];
+                for (var file of current_project)
                     sum += file[1];
-                }
             } else
                 sum = current_result["sum"];
 
             // Find or create a new row
             var current_row = -1;
-            for (var j = 0; j < rows.length; j++) {
-                if (rows[j][0] == current_result.Date) {
-                    current_row = j;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i][0] == current_result.Date) {
+                    current_row = i;
                     break;
                 }
             }
@@ -227,12 +258,10 @@ function summarizePlatformResultsByProject(project_name) {
                 current_row = rows.push([current_result.Date]) - 1;
 
             // Find the column and insert
-            for (var j = 1; j < columns.length; j++) {
-                var column_name = columns[j][0];
-
+            for (var i = 1; i < columns.length; i++) {
+                var column_name = columns[i][0];
                 if (current_result["platform"] == column_name) {
-                    var index = getIndexByColumnName(columns, column_name);
-                    rows[current_row][index] = sum;
+                    rows[current_row][i] = sum;
                     break;
                 }
             }
@@ -251,43 +280,13 @@ function summarizePlatformResultsByProject(project_name) {
     });
 }
 
-function filterByDate(rows, from) {
-    var from_date = new Date(from);
-    for (var i = 0; i < rows.length; i++) {
-        var row_date = new Date(rows[i][0]);
-        console.log(from_date + "<" + row_date);
-        if (from_date > row_date) {
-            rows.splice(i, 1);
-            i--;
-        }
-    }
-    return rows;
-}
-
-function showPlatforms(arch, project, from) {
+function showPlatforms() {
     chart_div.innerHTML = "Collecting data...";
 
-    summarizePlatformResultsByProject(project).then(function(chart_data) {
-        // Filter by arch
-        if (arch != "all") {
-            for (var i = 1; i < chart_data.columns.length; i++) {
-                if (arch != "arm" && arm_targets.includes(chart_data.columns[i][0])
-                        || arch != "x86" && x86_targets.includes(chart_data.columns[i][0])) {
-                    chart_data.columns.splice(i, 1);
-                    for (var j = 0; j < chart_data.rows.length; j++) {
-                        chart_data.rows[j].splice(i, 1);
-                    }
-                    i--;
-                }
-            }
-        }
-
-        // Filter by date
-        chart_data.rows = filterByDate(chart_data.rows, from);
-
+    summarizePlatformResultsByProject().then(function(chart_data) {
         var title = "CSiBE code size";
-        if (project != "all")
-            title += " of " + project;
+        if (chart_filter.project != "all")
+            title += " of " + chart_filter.project;
 
         drawChart(chart_data.columns, chart_data.rows, title);
     });

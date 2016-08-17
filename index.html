@@ -163,7 +163,11 @@
             <div class="header-content-inner">
                 <h1>Code Size Benchmark</h1>
                 <p>CSiBE is a code size benchmark environment which can help to compact your project or the generated code of your compiler.</p>
-                <a href="https://github.com/szeged/csibe" class="btn btn-primary btn-lg">Use it Now</a>
+                <p><a href="https://github.com/szeged/csibe" class="btn btn-primary btn-lg">Use it Now</a></p>
+                <p>
+                    <a href="#compiler-monitor" data-toggle="modal" data-target="#compiler-monitor" class="btn btn-primary btn-md" style="margin-right: 50px;">Compiler monitor</a>
+                    <a href="#project-observer" data-toggle="modal" data-target="#project-observer" class="btn btn-primary btn-md">Project observer</a>
+                </p>
             </div>
         </div>
     </header>
@@ -284,9 +288,6 @@
     <!-- CSiBe results charts -->
     <script type="text/javascript" src="js/chart.js"></script>
     <script type="text/javascript">
-        var arch = "all";
-        var from_date = "2016-01-01";
-
         var project_selector = document.getElementById('project-name');
         for (var i = 0; i < project_names.length; i++) {
             project_selector.options[project_selector.options.length]
@@ -295,84 +296,77 @@
 
         $('#compiler-monitor').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_cm');
-            arch = "all";
-            showPlatforms(arch, "all", from_date);
+            chart_filter.arch = "all";
+            chart_filter.project = "all";
+            var today = new Date();
+            chart_filter.from_date = today.setDate(today.getDate() - 20);
+            showPlatforms();
         });
 
         $('#compiler-monitor-arm').on('click', function(e) {
-            arch = "arm";
-            showPlatforms(arch, "all", from_date);
+            chart_filter.arch = "arm";
+            showPlatforms();
         });
 
         $('#compiler-monitor-x86').on('click', function(e) {
-            arch = "x86";
-            showPlatforms(arch, "all", from_date);
+            chart_filter.arch = "x86";
+            showPlatforms();
         });
 
         $('#compiler-monitor-all').on('click', function(e) {
-            arch = "all";
-            showPlatforms(arch, "all", from_date);
+            chart_filter.arch = "all";
+            showPlatforms();
         });
 
         $('#compiler-monitor-last-20-days').on('click', function(e) {
             var today = new Date();
-            from_date = today.setDate(today.getDate() - 20);
-            showPlatforms(arch, "all", from_date);
+            chart_filter.from_date = today.setDate(today.getDate() - 20);
+            showPlatforms();
         });
 
         $('#compiler-monitor-all-date').on('click', function(e) {
-            from_date = "2016-01-01";
-            showPlatforms(arch, "all", from_date);
+            chart_filter.from_date = "2016-01-01";
+            showPlatforms();
         });
 
         $('#project-observer').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_po');
-            arch = "all";
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.arch = "all";
+            chart_filter.project = project_selector.options[project_selector.selectedIndex].value;
+            var today = new Date();
+            chart_filter.from_date = today.setDate(today.getDate() - 20);
+            showPlatforms();
         });
 
         $('#project-observer-arm').on('click', function(e) {
-            arch = "arm";
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.arch = "arm";
+            showPlatforms();
         });
 
         $('#project-observer-x86').on('click', function(e) {
-            arch = "x86";
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.arch = "x86";
+            showPlatforms();
         });
 
         $('#project-observer-all').on('click', function(e) {
-            arch = "all";
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.arch = "all";
+            showPlatforms();
         });
 
         $('#project-observer-last-20-days').on('click', function(e) {
             var today = new Date();
-            from_date = today.setDate(today.getDate() - 20);
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.from_date = today.setDate(today.getDate() - 20);
+            showPlatforms();
         });
 
         $('#project-observer-all-date').on('click', function(e) {
-            from_date = "2016-01-01";
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.from_date = "2016-01-01";
+            showPlatforms();
         });
 
         $('#project-name').on('change', function(e) {
-            showPlatforms(arch,
-                          project_selector.options[project_selector.selectedIndex].value,
-                          from_date);
+            chart_filter.project = project_selector.options[project_selector.selectedIndex].value;
+            showPlatforms();
         });
     </script>
 </body>

@@ -55,11 +55,11 @@ google.charts.load('current', { packages: ['corechart', 'line'] });
 function findAlias(name) {
     switch (name) {
         case "clang-trunk-cortex-m0":
-            return "Cortex-M0";
+            return "Clang, Cortex-M0";
         case "clang-trunk-cortex-m4":
-            return "Cortex-M4";
+            return "Clang, Cortex-M4";
         case "clang-trunk-x86_64":
-            return "x86-64";
+            return "Clang, x86-64";
         default:
             return name;
     }

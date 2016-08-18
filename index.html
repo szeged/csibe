@@ -84,24 +84,18 @@
           <div class="modal-body">
             <div class="container">
 
-                <div class="dropdown" style="float: left; margin-right: 10px;">
-                  <button class="btn btn-primary dropdown-toggle" id="menu1" type="button" data-toggle="dropdown">Architecture&nbsp;<span class="caret"></span></button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                    <li role="presentation"><a id="compiler-monitor-arm" role="menuitem" tabindex="-1" href="#">ARM</a></li>
-                    <li role="presentation"><a id="compiler-monitor-x86" role="menuitem" tabindex="-1" href="#">x86</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a id="compiler-monitor-all" role="menuitem" tabindex="-1" href="#">All</a></li>
-                  </ul>
-                </div>
-
-                <div class="dropdown" style="float: left; margin-right: 10px;">
-                  <button class="btn btn-primary dropdown-toggle" id="menu2" type="button" data-toggle="dropdown">Date&nbsp;<span class="caret"></span></button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu2">
-                    <li role="presentation"><a id="compiler-monitor-last-20-days" role="menuitem" tabindex="-1" href="#">Last 20 days</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a id="compiler-monitor-all-date" role="menuitem" tabindex="-1" href="#">All</a></li>
-                  </ul>
-                </div>
+                <select id="arch-cm">
+                    <option value="all">All platforms</option>
+                    <option value="arm">ARM</option>
+                    <option value="x86">x86</option>
+                </select>
+                <select id="date-cm">
+                    <option value="last-20">Last 20 days</option>
+                    <option value="all">All</option>
+                </select>
+                <select id="compiler-flag-cm">
+                    <option value="all">All</option>
+                </select>
 
             </div>
 
@@ -125,26 +119,19 @@
           <div class="modal-body">
             <div class="container">
 
-                <div class="dropdown" style="float: left; margin-right: 10px;">
-                  <button class="btn btn-primary dropdown-toggle" id="menu1" type="button" data-toggle="dropdown">Architecture&nbsp;<span class="caret"></span></button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-                    <li role="presentation"><a id="project-observer-arm" role="menuitem" tabindex="-1" href="#">ARM</a></li>
-                    <li role="presentation"><a id="project-observer-x86" role="menuitem" tabindex="-1" href="#">x86</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a id="project-observer-all" role="menuitem" tabindex="-1" href="#">All</a></li>
-                  </ul>
-                </div>
-
-                <div class="dropdown" style="float: left; margin-right: 10px;">
-                  <button class="btn btn-primary dropdown-toggle" id="menu2" type="button" data-toggle="dropdown">Date&nbsp;<span class="caret"></span></button>
-                  <ul class="dropdown-menu" role="menu" aria-labelledby="menu2">
-                    <li role="presentation"><a id="project-observer-last-20-days" role="menuitem" tabindex="-1" href="#">Last 20 days</a></li>
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation"><a id="project-observer-all-date" role="menuitem" tabindex="-1" href="#">All</a></li>
-                  </ul>
-                </div>
-
-                <select id="project-name"></select>
+                <select id="arch-po">
+                    <option value="all">All platforms</option>
+                    <option value="arm">ARM</option>
+                    <option value="x86">x86</option>
+                </select>
+                <select id="date-po">
+                    <option value="last-20">Last 20 days</option>
+                    <option value="all">All</option>
+                </select>
+                <select id="compiler-flag-po">
+                    <option value="all">All</option>
+                </select>
+                <select id="project-name-po"></select>
 
             </div>
 
@@ -288,84 +275,91 @@
     <!-- CSiBe results charts -->
     <script type="text/javascript" src="js/chart.js"></script>
     <script type="text/javascript">
-        var project_selector = document.getElementById('project-name');
+        var arch_cm = document.getElementById('arch-cm');
+        var date_cm = document.getElementById('date-cm');
+        var flag_cm = document.getElementById('compiler-flag-cm');
+
+        var arch_po = document.getElementById('arch-po');
+        var date_po = document.getElementById('date-po');
+        var project_po = document.getElementById('project-name-po');
+        var flag_po = document.getElementById('compiler-flag-po');
+
         for (var i = 0; i < project_names.length; i++) {
-            project_selector.options[project_selector.options.length]
+            project_po.options[project_po.options.length]
                                         = new Option(project_names[i], project_names[i]);
+        }
+
+        for (var i = 0; i < compiler_flags.length; i++) {
+            flag_cm.options[flag_cm.options.length]
+                                        = new Option(compiler_flags[i], compiler_flags[i]);
+            flag_po.options[flag_po.options.length]
+                                        = new Option(compiler_flags[i], compiler_flags[i]);
         }
 
         $('#compiler-monitor').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_cm');
             chart_filter.arch = "all";
             chart_filter.project = "all";
+            chart_filter.flag = flag_cm.options[flag_cm.selectedIndex].value;
             var today = new Date();
             chart_filter.from_date = today.setDate(today.getDate() - 20);
             showPlatforms();
         });
 
-        $('#compiler-monitor-arm').on('click', function(e) {
-            chart_filter.arch = "arm";
+        $('#arch-cm').on('change', function(e) {
+            chart_filter.arch = arch_cm.options[arch_cm.selectedIndex].value;
             showPlatforms();
         });
 
-        $('#compiler-monitor-x86').on('click', function(e) {
-            chart_filter.arch = "x86";
+        $('#date-cm').on('change', function(e) {
+            var selector_value = date_cm.options[date_cm.selectedIndex].value;
+            if (selector_value == "all")
+                chart_filter.from_date = "all";
+            else if (selector_value == "last-20") {
+                var today = new Date();
+                chart_filter.from_date = today.setDate(today.getDate() - 20);
+            }
             showPlatforms();
         });
 
-        $('#compiler-monitor-all').on('click', function(e) {
-            chart_filter.arch = "all";
-            showPlatforms();
-        });
-
-        $('#compiler-monitor-last-20-days').on('click', function(e) {
-            var today = new Date();
-            chart_filter.from_date = today.setDate(today.getDate() - 20);
-            showPlatforms();
-        });
-
-        $('#compiler-monitor-all-date').on('click', function(e) {
-            chart_filter.from_date = "2016-01-01";
+        $('#compiler-flag-cm').on('change', function(e) {
+            chart_filter.flag = flag_cm.options[flag_cm.selectedIndex].value;
             showPlatforms();
         });
 
         $('#project-observer').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_po');
-            chart_filter.arch = "all";
-            chart_filter.project = project_selector.options[project_selector.selectedIndex].value;
+            chart_filter.arch = arch_po.options[arch_po.selectedIndex].value;
+            chart_filter.project = project_po.options[project_po.selectedIndex].value;
+            chart_filter.flag = flag_po.options[flag_po.selectedIndex].value;
             var today = new Date();
             chart_filter.from_date = today.setDate(today.getDate() - 20);
             showPlatforms();
         });
 
-        $('#project-observer-arm').on('click', function(e) {
-            chart_filter.arch = "arm";
+        $('#arch-po').on('change', function(e) {
+            chart_filter.arch = arch_po.options[arch_po.selectedIndex].value;
             showPlatforms();
         });
 
-        $('#project-observer-x86').on('click', function(e) {
-            chart_filter.arch = "x86";
+        $('#date-po').on('change', function(e) {
+            var selector_value = date_po.options[date_po.selectedIndex].value;
+            if (selector_value == "all")
+                chart_filter.from_date = "all";
+            else if (selector_value == "last-20") {
+                var today = new Date();
+                chart_filter.from_date = today.setDate(today.getDate() - 20);
+            }
             showPlatforms();
         });
 
-        $('#project-observer-all').on('click', function(e) {
-            chart_filter.arch = "all";
+        $('#compiler-flag-po').on('change', function(e) {
+            chart_filter.flag = flag_po.options[flag_po.selectedIndex].value;
             showPlatforms();
         });
 
-        $('#project-observer-last-20-days').on('click', function(e) {
-            var today = new Date();
-            chart_filter.from_date = today.setDate(today.getDate() - 20);
-            showPlatforms();
-        });
-
-        $('#project-observer-all-date').on('click', function(e) {
-            chart_filter.from_date = "2016-01-01";
-            showPlatforms();
-        });
-
-        $('#project-name').on('change', function(e) {
-            chart_filter.project = project_selector.options[project_selector.selectedIndex].value;
+        $('#project-name-po').on('change', function(e) {
+            chart_filter.project = project_po.options[project_po.selectedIndex].value;
             showPlatforms();
         });
     </script>

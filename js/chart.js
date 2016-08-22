@@ -32,11 +32,16 @@ var project_names = [
     "lwip-0.5.3.preproc"
 ];
 
+var compiler_flags = [
+    "Os",
+];
+
 var chart_div = document.querySelector('#chart_div_cm');
 
 var chart_filter = {
     arch : "all",
     project : "all",
+    flag : "Os",
     from_date : "2016-01-01"
 };
 
@@ -52,14 +57,31 @@ var csibe_results = [];
 
 google.charts.load('current', { packages: ['corechart', 'line'] });
 
+function getCompilerFlagFromString(text) {
+    if (!text)
+        return "Os";
+
+    for (var flag of compiler_flags) {
+        if (text.indexOf(flag) != -1)
+            return flag;
+    }
+    return "Os";
+}
+
 function findAlias(name) {
     switch (name) {
-        case "clang-trunk-cortex-m0":
-            return "Clang, Cortex-M0";
-        case "clang-trunk-cortex-m4":
-            return "Clang, Cortex-M4";
-        case "clang-trunk-x86_64":
-            return "Clang, x86-64";
+        case "clang-trunk-cortex-m0-Os":
+            return "Clang, Cortex-M0, -Os";
+        case "clang-trunk-cortex-m4-Os":
+            return "Clang, Cortex-M4, -Os";
+        case "clang-trunk-x86_64-Os":
+            return "Clang, x86-64, -Os";
+        case "clang-trunk-cortex-m0-O2":
+            return "Clang, Cortex-M0, -O2";
+        case "clang-trunk-cortex-m4-O2":
+            return "Clang, Cortex-M4, -O2";
+        case "clang-trunk-x86_64-O2":
+            return "Clang, x86-64, -O2";
         default:
             return name;
     }
@@ -90,10 +112,10 @@ function drawChart(columns, rows, title) {
         text: 'Show CSV file',
         action: function() {
             var selection = chart.getSelection()[0];
-            var platform = columns[selection.column][0];
+            var platform_and_flag = columns[selection.column][0];
             var date = new Date(rows[selection.row][0]);
             for (var file of repository_tree) {
-                if (file.platform == platform && file.date.getTime() == date.getTime()) {
+                if (file.platform + "-" + file.flag == platform_and_flag && file.date.getTime() == date.getTime()) {
                     window.open(raw_url_prefix + file.path, '_blank');
                     return;
                 }
@@ -166,6 +188,7 @@ function downloadRepositoryTree() {
                         path : node.path,
                         platform : node_path[0],
                         date : new Date(node_path[3].substring(0, 10)),
+                        flag : getCompilerFlagFromString(node.path),
                         downloaded: false
                     };
                     repository_tree.push(csv_node);
@@ -187,6 +210,7 @@ function getFilteredFileList() {
             if ((chart_filter.arch == "all"
                 || chart_filter.arch == "arm" && arm_targets.includes(node.platform)
                 || chart_filter.arch == "x86" && x86_targets.includes(node.platform))
+                && chart_filter.flag == "all" || node.flag == chart_filter.flag
                 && new Date(node.date) >= from_date)
                 file_list.push(node);
         }
@@ -215,24 +239,36 @@ function downloadNecessaryResults() {
 }
 
 function summarizePlatformResultsByProject() {
+    // Specify columns
     var columns = [
         ["Date", "string"]
     ];
 
     var arch = chart_filter.arch;
-    if (arch == "all" || arch == "arm") {
-        for (var platform of arm_targets)
-            columns.push([platform, "number"]);
-    }
-    if (arch == "all" || arch == "x86") {
-        for (var platform of x86_targets)
-            columns.push([platform, "number"]);
+    var platforms = [];
+    if (arch == "all" || arch == "arm")
+        platforms = platforms.concat(arm_targets);
+    if (arch == "all" || arch == "x86")
+        platforms = platforms.concat(x86_targets);
+
+    for (var platform of platforms) {
+        if (chart_filter.flag == "all") {
+            for (flag of compiler_flags) {
+                columns.push([platform + "-" + flag, "number"]);
+            }
+        } else
+            columns.push([platform + "-" + chart_filter.flag, "number"]);
     }
 
+    // Fill rows
     var rows = [];
-
     return downloadNecessaryResults().then(function() {
         for (var current_result of csibe_results) {
+            // Filter by flag
+            var result_flag = getCompilerFlagFromString(current_result["Compiler flags"]);
+            if (chart_filter.flag != "all" && result_flag != chart_filter.flag)
+                continue;
+
             // Filter by date
             if (new Date(current_result.Date) < new Date(chart_filter.from_date))
                 continue;
@@ -254,13 +290,16 @@ function summarizePlatformResultsByProject() {
                     break;
                 }
             }
-            if (current_row == -1)
-                current_row = rows.push([current_result.Date]) - 1;
+            if (current_row == -1) {
+                var new_row = new Array(columns.length);
+                new_row[0] = current_result.Date;
+                current_row = rows.push(new_row) - 1;
+            }
 
             // Find the column and insert
             for (var i = 1; i < columns.length; i++) {
                 var column_name = columns[i][0];
-                if (current_result["platform"] == column_name) {
+                if (current_result["platform"] + "-" + result_flag == column_name) {
                     rows[current_row][i] = sum;
                     break;
                 }

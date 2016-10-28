@@ -90,7 +90,9 @@
                     <option value="x86">x86</option>
                 </select>
                 <select id="date-cm">
-                    <option value="last-20">Last 20 days</option>
+                    <option value="last-5" selected>Last 5 days</option>
+                    <option value="last-10">Last 10 days</option>
+                    <option value="last-30">Last 30 days</option>
                     <option value="all">All</option>
                 </select>
                 <select id="compiler-flag-cm">
@@ -125,7 +127,9 @@
                     <option value="x86">x86</option>
                 </select>
                 <select id="date-po">
-                    <option value="last-20">Last 20 days</option>
+                    <option value="last-5" selected>Last 5 days</option>
+                    <option value="last-10">Last 10 days</option>
+                    <option value="last-30">Last 30 days</option>
                     <option value="all">All</option>
                 </select>
                 <select id="compiler-flag-po">
@@ -296,13 +300,30 @@
                                         = new Option(compiler_flags[i], compiler_flags[i]);
         }
 
+        function selectorValueToInt(value) {
+            switch (value) {
+                case "all":
+                    return 0;
+                case "last-5":
+                    return 5;
+                case "last-10":
+                    return 10;
+                case "last-30":
+                    return 30;
+            }
+        }
+
         $('#compiler-monitor').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_cm');
-            chart_filter.arch = "all";
+            arch_cm.selectedIndex = 0;
+            flag_cm.selectedIndex = 0;
+            date_cm.selectedIndex = 0;
+
+            chart_filter.arch = arch_cm.options[arch_cm.selectedIndex].value;
             chart_filter.project = "all";
             chart_filter.flag = flag_cm.options[flag_cm.selectedIndex].value;
             var today = new Date();
-            chart_filter.from_date = today.setDate(today.getDate() - 20);
+            chart_filter.from_date = today.setDate(today.getDate() - 5);
             showPlatforms();
         });
 
@@ -312,12 +333,12 @@
         });
 
         $('#date-cm').on('change', function(e) {
-            var selector_value = date_cm.options[date_cm.selectedIndex].value;
-            if (selector_value == "all")
+            var days = selectorValueToInt(date_cm.options[date_cm.selectedIndex].value);
+            if (days == 0)
                 chart_filter.from_date = "all";
-            else if (selector_value == "last-20") {
+            else {
                 var today = new Date();
-                chart_filter.from_date = today.setDate(today.getDate() - 20);
+                chart_filter.from_date = today.setDate(today.getDate() - days);
             }
             showPlatforms();
         });
@@ -329,6 +350,11 @@
 
         $('#project-observer').on('shown.bs.modal', function() {
             chart_div = document.querySelector('#chart_div_po');
+            arch_po.selectedIndex = 0;
+            project_po.selectedIndex = 0;
+            flag_po.selectedIndex = 0;
+            date_po.selectedIndex = 0;
+
             chart_filter.arch = arch_po.options[arch_po.selectedIndex].value;
             chart_filter.project = project_po.options[project_po.selectedIndex].value;
             chart_filter.flag = flag_po.options[flag_po.selectedIndex].value;
@@ -343,12 +369,12 @@
         });
 
         $('#date-po').on('change', function(e) {
-            var selector_value = date_po.options[date_po.selectedIndex].value;
-            if (selector_value == "all")
+            var days = selectorValueToInt(date_po.options[date_po.selectedIndex].value);
+            if (days == 0)
                 chart_filter.from_date = "all";
-            else if (selector_value == "last-20") {
+            else {
                 var today = new Date();
-                chart_filter.from_date = today.setDate(today.getDate() - 20);
+                chart_filter.from_date = today.setDate(today.getDate() - days);
             }
             showPlatforms();
         });

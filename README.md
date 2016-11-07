@@ -21,6 +21,14 @@ This creates a ```build/native/all_results.csv``` results file which contains al
 
 If you would like to embed CSiBE measurement routines to your own build or measurement framework you should first checkout out 'bin/create_sample_project' script. This will help you through to create your own measurement. To create a measurement project that uses a cross-compiler check out the 'bin/create_sample_cross_compile_project' script.
 
+If you would like to test different compilers or cores than the given, create a <myCompiler>-<myCore>.cmake file and add it to the toolchain directory. You may look up the existing .cmake files to get an idea, how it works.
+
+Use it with ./csibe.py --toolchain <myCompiler>-<myCore>.
+
+If you would like to add another project, add a <myProject> directory to gen/ and src/. In gen/<myProject>, put a CMakeList.txt file. Look up the existing ones for inspiration. Put the .c/.cpp files into src/<myProject>.
+
+Use it by updating the CMakeLists.txt in the root directory. Just add the line "list (APPEND SUBPROJECTS <myProject>)" at the appropriate position. 
+
 ## Links
 
 More info about the project can be found at http://www.csibe.org

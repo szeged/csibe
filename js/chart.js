@@ -1,7 +1,7 @@
 
 var owner = "bgabor666";
 var repository = "csibe-results";
-var branch = "master";
+var branch = "experimental";
 
 var arm_targets = [
     "clang-trunk-cortex-m0",
@@ -9,7 +9,7 @@ var arm_targets = [
 ];
 
 var x86_targets = [
-    "clang-trunk-x86_64"
+    "clang-trunk-native"
 ];
 
 var project_names = [
@@ -33,40 +33,46 @@ var project_names = [
 ];
 
 var compiler_flags = [
-    "Os",
+    "-Os",
+    "-Oz"
 ];
 
 var chart_div = document.querySelector('#chart_div_cm');
 
+var first_result_date = new Date("2016-09-26");
+
 var chart_filter = {
     arch : "all",
     project : "all",
-    flag : "Os",
-    from_date : "2016-01-01"
+    flag : "-Os",
+    from_date : first_result_date
 };
 
-var tree_url = "https://api.github.com/repos/"
-                + owner + "/" + repository + "/git/trees/" + branch + "?recursive=1";
-
-var repository_tree = [];
-
-var raw_url_prefix = "https://raw.githubusercontent.com/"
+var csv_url_prefix = "https://raw.githubusercontent.com/"
                 + owner + "/" + repository + "/" + branch + "/";
 
+var daily_summary_prefix = "https://raw.githubusercontent.com/"
+                + owner + "/" + repository + "/" + branch + "/daily-results/";
+
+var processed_days = [];
 var csibe_results = [];
 
 google.charts.load('current', { packages: ['corechart', 'line'] });
 
-function getCompilerFlagFromString(text) {
-    if (!text)
-        return "Os";
-
-    for (var flag of compiler_flags) {
-        if (text.indexOf(flag) != -1)
-            return flag;
+(function() {
+    Date.prototype.toYMD = Date_toYMD;
+    function Date_toYMD() {
+        var year, month, day;
+        year = String(this.getFullYear());
+        month = String(this.getMonth() + 1);
+        if (month.length == 1)
+            month = "0" + month;
+        day = String(this.getDate());
+        if (day.length == 1)
+            day = "0" + day;
+        return year + "-" + month + "-" + day;
     }
-    return "Os";
-}
+})();
 
 function findAlias(name) {
     switch (name) {
@@ -74,14 +80,14 @@ function findAlias(name) {
             return "Clang, Cortex-M0, -Os";
         case "clang-trunk-cortex-m4-Os":
             return "Clang, Cortex-M4, -Os";
-        case "clang-trunk-x86_64-Os":
+        case "clang-trunk-native-Os":
             return "Clang, x86-64, -Os";
-        case "clang-trunk-cortex-m0-O2":
-            return "Clang, Cortex-M0, -O2";
-        case "clang-trunk-cortex-m4-O2":
-            return "Clang, Cortex-M4, -O2";
-        case "clang-trunk-x86_64-O2":
-            return "Clang, x86-64, -O2";
+        case "clang-trunk-cortex-m0-Oz":
+            return "Clang, Cortex-M0, -Oz";
+        case "clang-trunk-cortex-m4-Oz":
+            return "Clang, Cortex-M4, -Oz";
+        case "clang-trunk-native-Oz":
+            return "Clang, x86-64, -Oz";
         default:
             return name;
     }
@@ -92,19 +98,25 @@ function drawChart(columns, rows, title) {
     var data = new google.visualization.DataTable();
 
     for (var i = 0; i < columns.length; i++) {
-        var column = columns[i];
-        data.addColumn(column[1], findAlias(column[0]));
+        columns[i].id = columns[i].label;
+        columns[i].label = findAlias(columns[i].label);
+        data.addColumn(columns[i]);
     }
 
     data.addRows(rows);
 
     var options = {
         title : title,
-        curveType : "function",
+        hAxis: {
+            textPosition: "none",
+        },
         tooltip : {
             isHtml : true,
             trigger : "both" // focus and selection
-        }
+        },
+        annotations: {
+            style: 'line'
+        },
     };
 
     chart.setAction({
@@ -112,11 +124,14 @@ function drawChart(columns, rows, title) {
         text: 'Show CSV file',
         action: function() {
             var selection = chart.getSelection()[0];
-            var platform_and_flag = columns[selection.column][0];
-            var date = new Date(rows[selection.row][0]);
-            for (var file of repository_tree) {
-                if (file.platform + "-" + file.flag == platform_and_flag && file.date.getTime() == date.getTime()) {
-                    window.open(raw_url_prefix + file.path, '_blank');
+            var platform_and_flag = columns[selection.column].id;
+            var revision = rows[selection.row][0];
+
+            for (var current_day of csibe_results) {
+                if (current_day.revisions.hasOwnProperty(revision)) {
+                    var date_parts = current_day.date.split("-");
+                    var file_path = platform_and_flag + "/" + date_parts[0] + "/" + date_parts[1] + "/" + current_day.date + "-" + platform_and_flag + "-r" + revision + "-results.csv";
+                    window.open(csv_url_prefix + file_path, '_blank');
                     return;
                 }
             }
@@ -126,190 +141,173 @@ function drawChart(columns, rows, title) {
     chart.draw(data, options);
 }
 
-function csvToJSON(csv, url) {
-    var data = {};
-    var sum_all = 0;
-    var lines = csv.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-        if (lines[i].length == 0)
-            continue;
-        var currentline = lines[i].split(",");
-        if (currentline.length == 3 && currentline[2] % 1 === 0 && currentline[2] > 0) {
-            var project_name = currentline[0];
-            var file_name = currentline[1];
-            var size = parseInt(currentline[2]);
-            sum_all += size;
-
-            if (typeof(data[project_name]) === "undefined")
-                data[project_name] = [];
-            data[project_name].push([file_name, size]);
-        } else if (currentline.length == 2)
-            data[currentline[0]] = currentline[1];
-    }
-
-    // Extra properties
-    data["sum"] = sum_all;
-
-    var platform = url.split("/")[6];
-    data["platform"] = platform;
-
-    return data;
-}
-
 function getURL(url) {
     return new Promise(function(resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onload = function() {
-            var status = xhr.status;
-            if (status == 200) {
-                var response = {
-                    url: xhr.responseURL,
-                    content: xhr.response
-                };
-                resolve(response);
-            } else {
-                console.log("getURL() error, status: " + status);
-                reject(status);
-            }
+            var response = {
+                url: xhr.responseURL,
+                statusCode: xhr.status,
+                content: xhr.response
+            };
+            resolve(response);
         };
         xhr.send();
-    });
-};
-
-function downloadRepositoryTree() {
-    if (repository_tree.length == 0) {
-        return getURL(tree_url).then(function(response) {
-            var tree = JSON.parse(response.content).tree;
-            for (var node of tree) {
-                if (node.type == "blob" && node.path.endsWith(".csv")) {
-                    var node_path = node.path.split('/');
-                    var csv_node = {
-                        path : node.path,
-                        platform : node_path[0],
-                        date : new Date(node_path[3].substring(0, 10)),
-                        flag : getCompilerFlagFromString(node.path),
-                        downloaded: false
-                    };
-                    repository_tree.push(csv_node);
-                }
-            }
-        }, function(status) {
-            console.log("Can't access repository tree.");
-            return null;
-        });
-    } else
-        return Promise.resolve();
-}
-
-function getFilteredFileList() {
-    return downloadRepositoryTree().then(function() {
-        var file_list = [];
-        var from_date = new Date(chart_filter.from_date);
-        for (var node of repository_tree) {
-            if ((chart_filter.arch == "all"
-                || chart_filter.arch == "arm" && arm_targets.includes(node.platform)
-                || chart_filter.arch == "x86" && x86_targets.includes(node.platform))
-                && chart_filter.flag == "all" || node.flag == chart_filter.flag
-                && new Date(node.date) >= from_date)
-                file_list.push(node);
-        }
-        return file_list;
     });
 }
 
 function downloadNecessaryResults() {
     var pending = [];
     var results = [];
-    return getFilteredFileList().then(function(list) {
-        for (var node of list) {
-            if (!node.downloaded) {
-                node.downloaded = true;
-                pending.push(getURL(raw_url_prefix + node.path + '?' + new Date().getTime()).then(function(response) {
-                    results.push(csvToJSON(response.content, response.url));
-                }));
-            }
+
+    var current_date = new Date();
+    var from_date;
+    if (chart_filter.from_date == "all")
+        from_date = first_result_date.getTime();
+    else
+        from_date = new Date(chart_filter.from_date).getTime();
+
+    while (current_date.getTime() > from_date) {
+        var current_YMD = current_date.toYMD();
+        if (processed_days.includes(current_YMD)) {
+            current_date.setDate(current_date.getDate() - 1);
+            continue;
         }
-        return pending;
-    }).then(function(pending_list) {
-        return Promise.all(pending_list).then(function() {
-            csibe_results = csibe_results.concat(results);
-        });
+
+        var month = String(current_date.getMonth() + 1);
+        if (month.length == 1)
+            month = "0" + month;
+        var daily_result_url = daily_summary_prefix + current_date.getFullYear() + "/" + month + "/" + current_YMD + "-results.json";
+        pending.push(getURL(daily_result_url).then(function(response) {
+            if (response.statusCode == 200)
+                results.push(JSON.parse(response.content));
+        }));
+        processed_days.push(current_YMD);
+
+        current_date.setDate(current_date.getDate() - 1);
+    }
+
+    return Promise.all(pending).then(function() {
+        csibe_results = csibe_results.concat(results);
     });
 }
 
 function summarizePlatformResultsByProject() {
     // Specify columns
     var columns = [
-        ["Date", "string"]
+        { label: "Revision", type: "string" },
+        { role: "annotation", type: "date" }
     ];
 
     var arch = chart_filter.arch;
-    var platforms = [];
+    var platform_names = [];
     if (arch == "all" || arch == "arm")
-        platforms = platforms.concat(arm_targets);
+        platform_names = platform_names.concat(arm_targets);
     if (arch == "all" || arch == "x86")
-        platforms = platforms.concat(x86_targets);
+        platform_names = platform_names.concat(x86_targets);
 
-    for (var platform of platforms) {
+    for (var platform of platform_names) {
         if (chart_filter.flag == "all") {
-            for (flag of compiler_flags) {
-                columns.push([platform + "-" + flag, "number"]);
+            for (var flag of compiler_flags) {
+                columns.push({ label: platform + flag, type: "number" });
             }
         } else
-            columns.push([platform + "-" + chart_filter.flag, "number"]);
+            columns.push({ label: platform + chart_filter.flag, type: "number" });
     }
 
     // Fill rows
     var rows = [];
     return downloadNecessaryResults().then(function() {
-        for (var current_result of csibe_results) {
-            // Filter by flag
-            var result_flag = getCompilerFlagFromString(current_result["Compiler flags"]);
-            if (chart_filter.flag != "all" && result_flag != chart_filter.flag)
-                continue;
-
+        // Iterate days
+        for (var current_day of csibe_results) {
             // Filter by date
-            if (new Date(current_result.Date) < new Date(chart_filter.from_date))
+            if (new Date(current_day.date) < chart_filter.from_date)
                 continue;
 
-            // Summarize all projects or just the specified one
-            var sum = 0;
-            if (chart_filter.project != "all") {
-                var current_project = current_result[chart_filter.project];
-                for (var file of current_project)
-                    sum += file[1];
-            } else
-                sum = current_result["sum"];
+            // Iterate revisions
+            for (var revision_name in current_day.revisions) {
+                if (!current_day.revisions.hasOwnProperty(revision_name))
+                    continue;
+                var revision = current_day.revisions[revision_name];
 
-            // Find or create a new row
-            var current_row = -1;
-            for (var i = 0; i < rows.length; i++) {
-                if (rows[i][0] == current_result.Date) {
-                    current_row = i;
-                    break;
-                }
-            }
-            if (current_row == -1) {
-                var new_row = new Array(columns.length);
-                new_row[0] = current_result.Date;
-                current_row = rows.push(new_row) - 1;
-            }
+                // Iterate platforms
+                for (var platform_name in revision) {
+                    if (!revision.hasOwnProperty(platform_name))
+                        continue;
+                    var platform = revision[platform_name];
 
-            // Find the column and insert
-            for (var i = 1; i < columns.length; i++) {
-                var column_name = columns[i][0];
-                if (current_result["platform"] + "-" + result_flag == column_name) {
-                    rows[current_row][i] = sum;
-                    break;
+                    // Filter by platform name and flag
+                    var foundInPlatformsList = false;
+                    for (var p of platform_names) {
+                        if (platform_name.startsWith(p)) {
+                            foundInPlatformsList = true;
+                            break;
+                        }
+                    }
+                    if (!foundInPlatformsList || !platform.flags.includes(chart_filter.flag) && chart_filter.flag != "all")
+                        continue;
+
+                    // Summarize all projects or just the specified one
+                    var sum = 0;
+                    if (chart_filter.project != "all")
+                        sum = platform.projects[chart_filter.project];
+                    else
+                        sum = platform.sum;
+
+                    // Find or create a new row
+                    var current_row = -1;
+                    for (var i = 0; i < rows.length; i++) {
+                        if (rows[i][0] == revision_name) {
+                            current_row = i;
+                            break;
+                        }
+                    }
+                    if (current_row == -1) {
+                        var new_row = new Array(columns.length);
+                        new_row[0] = revision_name;
+                        new_row[1] = new Date(current_day.date);
+                        current_row = rows.push(new_row) - 1;
+                    }
+
+                    // Find the column and insert
+                    for (var i = 2; i < columns.length; i++) {
+                        var column_name = columns[i].label;
+                        if (platform_name == column_name) {
+                            rows[current_row][i] = sum;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        // Sort rows by date
+        // Sort rows by revisions
         rows.sort(function(a, b){
-            return new Date(a[0]) - new Date(b[0]);
+            return parseInt(a[0]) - parseInt(b[0]);
         });
+
+        var today = new Date();
+        var from_date = new Date(chart_filter.from_date);
+        var showAnnotations = chart_filter.from_date != "all"
+                            && from_date.getTime() >= today.getTime() - 864010000;  // 10 days
+
+        if (showAnnotations) {
+            // Show every single day
+            var previous_date = first_result_date;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i][1].getTime() == previous_date.getTime())
+                    rows[i][1] = null;
+                else
+                    previous_date = rows[i][1];
+            }
+        } else {
+            // Show the first and the last day
+            for (var i = 0; i < rows.length; i++) {
+                if (i != 0 && i != rows.length - 1)
+                    rows[i][1] = null;
+            }
+        }
     }).then(function() {
         var chart_data = {
             columns: columns,

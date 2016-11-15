@@ -9,7 +9,6 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
 <body>
@@ -41,8 +40,7 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Services <span class="caret"></span></a>
                         <ul class="dropdown-menu" aria-labelledby="about-us">
-                            <li><a href="#compiler-monitor" data-toggle="modal" data-target="#compiler-monitor">Compiler monitor</a></li>
-                            <li><a href="#project-observer" data-toggle="modal" data-target="#project-observer">Project observer</a></li>
+                            <li><a href="compiler-monitor.html" target="_blank">Compiler monitor</a></li>
                             <li><a href="http://www.csibe.org/old">Historical data</a></li>
                         </ul>
                     </li>
@@ -73,91 +71,15 @@
       </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="compiler-monitor" tabindex="-1" role="dialog" aria-labelledby="compiler-monitorLabel">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="compiler-monitorLabel">Compiler monitor</h4>
-          </div>
-          <div class="modal-body">
-            <div class="container">
-
-                <select id="arch-cm">
-                    <option value="all">All platforms</option>
-                    <option value="arm">ARM</option>
-                    <option value="x86">x86</option>
-                </select>
-                <select id="date-cm">
-                    <option value="last-5" selected>Last 5 days</option>
-                    <option value="last-10">Last 10 days</option>
-                    <option value="last-30">Last 30 days</option>
-                    <option value="all">All</option>
-                </select>
-                <select id="compiler-flag-cm">
-                    <option value="all">All</option>
-                </select>
-
-            </div>
-
-            <div id="chart_div_cm" style="width: 100%; height: 500px;"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="project-observer" tabindex="-1" role="dialog" aria-labelledby="project-observerLabel">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="project-observerLabel">Project observer</h4>
-          </div>
-          <div class="modal-body">
-            <div class="container">
-
-                <select id="arch-po">
-                    <option value="all">All platforms</option>
-                    <option value="arm">ARM</option>
-                    <option value="x86">x86</option>
-                </select>
-                <select id="date-po">
-                    <option value="last-5" selected>Last 5 days</option>
-                    <option value="last-10">Last 10 days</option>
-                    <option value="last-30">Last 30 days</option>
-                    <option value="all">All</option>
-                </select>
-                <select id="compiler-flag-po">
-                    <option value="all">All</option>
-                </select>
-                <select id="project-name-po"></select>
-
-            </div>
-
-            <div id="chart_div_po" style="width: 100%; height: 500px;"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Header -->
     <header>
         <div class="header-content">
             <div class="header-content-inner">
                 <h1>Code Size Benchmark</h1>
                 <p>CSiBE is a code size benchmark environment which can help to compact your project or the generated code of your compiler.</p>
-                <p><a href="https://github.com/szeged/csibe" class="btn btn-primary btn-lg">Use it Now</a></p>
                 <p>
-                    <a href="#compiler-monitor" data-toggle="modal" data-target="#compiler-monitor" class="btn btn-primary btn-md" style="margin-right: 50px;">Compiler monitor</a>
-                    <a href="#project-observer" data-toggle="modal" data-target="#project-observer" class="btn btn-primary btn-md">Project observer</a>
+                    <a href="https://github.com/szeged/csibe" class="btn btn-primary btn-lg" style="margin-right: 15px;">Use it Now</a>
+                    <a href="compiler-monitor.html" target="_blank" class="btn btn-primary btn-lg">Show results</a>
                 </p>
             </div>
         </div>
@@ -275,120 +197,6 @@
 
     <!-- Custom Javascript -->
     <script src="js/custom.js"></script>
-
-    <!-- CSiBe results charts -->
-    <script type="text/javascript" src="js/chart.js"></script>
-    <script type="text/javascript">
-        var arch_cm = document.getElementById('arch-cm');
-        var date_cm = document.getElementById('date-cm');
-        var flag_cm = document.getElementById('compiler-flag-cm');
-
-        var arch_po = document.getElementById('arch-po');
-        var date_po = document.getElementById('date-po');
-        var project_po = document.getElementById('project-name-po');
-        var flag_po = document.getElementById('compiler-flag-po');
-
-        for (var i = 0; i < project_names.length; i++) {
-            project_po.options[project_po.options.length]
-                                        = new Option(project_names[i], project_names[i]);
-        }
-
-        for (var i = 0; i < compiler_flags.length; i++) {
-            flag_cm.options[flag_cm.options.length]
-                                        = new Option(compiler_flags[i], compiler_flags[i]);
-            flag_po.options[flag_po.options.length]
-                                        = new Option(compiler_flags[i], compiler_flags[i]);
-        }
-
-        function selectorValueToInt(value) {
-            switch (value) {
-                case "all":
-                    return 0;
-                case "last-5":
-                    return 5;
-                case "last-10":
-                    return 10;
-                case "last-30":
-                    return 30;
-            }
-        }
-
-        $('#compiler-monitor').on('shown.bs.modal', function() {
-            chart_div = document.querySelector('#chart_div_cm');
-            arch_cm.selectedIndex = 0;
-            flag_cm.selectedIndex = 0;
-            date_cm.selectedIndex = 0;
-
-            chart_filter.arch = arch_cm.options[arch_cm.selectedIndex].value;
-            chart_filter.project = "all";
-            chart_filter.flag = flag_cm.options[flag_cm.selectedIndex].value;
-            var today = new Date();
-            chart_filter.from_date = today.setDate(today.getDate() - 5);
-            showPlatforms();
-        });
-
-        $('#arch-cm').on('change', function(e) {
-            chart_filter.arch = arch_cm.options[arch_cm.selectedIndex].value;
-            showPlatforms();
-        });
-
-        $('#date-cm').on('change', function(e) {
-            var days = selectorValueToInt(date_cm.options[date_cm.selectedIndex].value);
-            if (days == 0)
-                chart_filter.from_date = "all";
-            else {
-                var today = new Date();
-                chart_filter.from_date = today.setDate(today.getDate() - days);
-            }
-            showPlatforms();
-        });
-
-        $('#compiler-flag-cm').on('change', function(e) {
-            chart_filter.flag = flag_cm.options[flag_cm.selectedIndex].value;
-            showPlatforms();
-        });
-
-        $('#project-observer').on('shown.bs.modal', function() {
-            chart_div = document.querySelector('#chart_div_po');
-            arch_po.selectedIndex = 0;
-            project_po.selectedIndex = 0;
-            flag_po.selectedIndex = 0;
-            date_po.selectedIndex = 0;
-
-            chart_filter.arch = arch_po.options[arch_po.selectedIndex].value;
-            chart_filter.project = project_po.options[project_po.selectedIndex].value;
-            chart_filter.flag = flag_po.options[flag_po.selectedIndex].value;
-            var today = new Date();
-            chart_filter.from_date = today.setDate(today.getDate() - 20);
-            showPlatforms();
-        });
-
-        $('#arch-po').on('change', function(e) {
-            chart_filter.arch = arch_po.options[arch_po.selectedIndex].value;
-            showPlatforms();
-        });
-
-        $('#date-po').on('change', function(e) {
-            var days = selectorValueToInt(date_po.options[date_po.selectedIndex].value);
-            if (days == 0)
-                chart_filter.from_date = "all";
-            else {
-                var today = new Date();
-                chart_filter.from_date = today.setDate(today.getDate() - days);
-            }
-            showPlatforms();
-        });
-
-        $('#compiler-flag-po').on('change', function(e) {
-            chart_filter.flag = flag_po.options[flag_po.selectedIndex].value;
-            showPlatforms();
-        });
-
-        $('#project-name-po').on('change', function(e) {
-            chart_filter.project = project_po.options[project_po.selectedIndex].value;
-            showPlatforms();
-        });
-    </script>
 </body>
 
 </html>

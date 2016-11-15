@@ -45,7 +45,8 @@ var chart_filter = {
     arch : "all",
     project : "all",
     flag : "-Os",
-    from_date : first_result_date
+    from_date : first_result_date,
+    to_date : new Date()
 };
 
 var csv_url_prefix = "https://raw.githubusercontent.com/"
@@ -56,8 +57,6 @@ var daily_summary_prefix = "https://raw.githubusercontent.com/"
 
 var processed_days = [];
 var csibe_results = [];
-
-google.charts.load('current', { packages: ['corechart', 'line'] });
 
 (function() {
     Date.prototype.toYMD = Date_toYMD;
@@ -74,69 +73,47 @@ google.charts.load('current', { packages: ['corechart', 'line'] });
     }
 })();
 
-function findAlias(name) {
+function findPlatformAlias(name) {
     switch (name) {
-        case "clang-trunk-cortex-m0-Os":
-            return "Clang, Cortex-M0, -Os";
-        case "clang-trunk-cortex-m4-Os":
-            return "Clang, Cortex-M4, -Os";
-        case "clang-trunk-native-Os":
-            return "Clang, x86-64, -Os";
-        case "clang-trunk-cortex-m0-Oz":
-            return "Clang, Cortex-M0, -Oz";
-        case "clang-trunk-cortex-m4-Oz":
-            return "Clang, Cortex-M4, -Oz";
-        case "clang-trunk-native-Oz":
-            return "Clang, x86-64, -Oz";
+        case "clang-trunk-cortex-m0":
+            return "Clang, Cortex-M0";
+        case "clang-trunk-cortex-m4":
+            return "Clang, Cortex-M4";
+        case "clang-trunk-native":
+            return "Clang, x86-64";
         default:
             return name;
     }
+}
+
+function findPlatformAndFlagAlias(name) {
+    var parts = name.split("-");
+    var flag = parts.pop();
+    return findPlatformAlias(parts.join("-")) + ", -" + flag;
 }
 
 function drawChart(columns, rows, title) {
     var chart = new google.visualization.LineChart(chart_div);
     var data = new google.visualization.DataTable();
 
-    for (var i = 0; i < columns.length; i++) {
-        columns[i].id = columns[i].label;
-        columns[i].label = findAlias(columns[i].label);
+    for (var i = 0; i < columns.length; i++)
         data.addColumn(columns[i]);
-    }
 
     data.addRows(rows);
 
     var options = {
         title : title,
         hAxis: {
-            textPosition: "none",
+            textPosition: 'none',
         },
         tooltip : {
             isHtml : true,
-            trigger : "both" // focus and selection
+            trigger : 'both' // focus and selection
         },
         annotations: {
             style: 'line'
         },
     };
-
-    chart.setAction({
-        id: 'show_csv',
-        text: 'Show CSV file',
-        action: function() {
-            var selection = chart.getSelection()[0];
-            var platform_and_flag = columns[selection.column].id;
-            var revision = rows[selection.row][0];
-
-            for (var current_day of csibe_results) {
-                if (current_day.revisions.hasOwnProperty(revision)) {
-                    var date_parts = current_day.date.split("-");
-                    var file_path = platform_and_flag + "/" + date_parts[0] + "/" + date_parts[1] + "/" + current_day.date + "-" + platform_and_flag + "-r" + revision + "-results.csv";
-                    window.open(csv_url_prefix + file_path, '_blank');
-                    return;
-                }
-            }
-        }
-    });
 
     chart.draw(data, options);
 }
@@ -161,14 +138,9 @@ function downloadNecessaryResults() {
     var pending = [];
     var results = [];
 
-    var current_date = new Date();
-    var from_date;
-    if (chart_filter.from_date == "all")
-        from_date = first_result_date.getTime();
-    else
-        from_date = new Date(chart_filter.from_date).getTime();
-
-    while (current_date.getTime() > from_date) {
+    var current_date = new Date(chart_filter.to_date);
+    var from_time = chart_filter.from_date.getTime();
+    while (current_date.getTime() >= from_time) {
         var current_YMD = current_date.toYMD();
         if (processed_days.includes(current_YMD)) {
             current_date.setDate(current_date.getDate() - 1);
@@ -206,14 +178,23 @@ function summarizePlatformResultsByProject() {
         platform_names = platform_names.concat(arm_targets);
     if (arch == "all" || arch == "x86")
         platform_names = platform_names.concat(x86_targets);
+    if (arch != "all" && arch != "arm" && arch != "x86")
+        platform_names = platform_names.concat(arch);
 
     for (var platform of platform_names) {
         if (chart_filter.flag == "all") {
             for (var flag of compiler_flags) {
-                columns.push({ label: platform + flag, type: "number" });
+                // Data column
+                columns.push({ id: platform + flag, label: findPlatformAndFlagAlias(platform + flag), type: "number" });
+                // Tooltip
+                columns.push({ role: "tooltip", type: "string", 'p': {'html': true}});
             }
-        } else
-            columns.push({ label: platform + chart_filter.flag, type: "number" });
+        } else {
+            // Data column
+            columns.push({ id: platform + chart_filter.flag, label: findPlatformAndFlagAlias(platform + chart_filter.flag), type: "number" });
+            // Tooltip
+            columns.push({ role: "tooltip", type: "string", 'p': {'html': true}});
+        }
     }
 
     // Fill rows
@@ -222,7 +203,9 @@ function summarizePlatformResultsByProject() {
         // Iterate days
         for (var current_day of csibe_results) {
             // Filter by date
-            if (new Date(current_day.date) < chart_filter.from_date)
+            var current_day_date = new Date(current_day.date);
+            if (current_day_date.getTime() < chart_filter.from_date.getTime()
+                || current_day_date.getTime() > chart_filter.to_date.getTime())
                 continue;
 
             // Iterate revisions
@@ -271,8 +254,8 @@ function summarizePlatformResultsByProject() {
                     }
 
                     // Find the column and insert
-                    for (var i = 2; i < columns.length; i++) {
-                        var column_name = columns[i].label;
+                    for (var i = 2; i < columns.length; i+=2) {
+                        var column_name = columns[i].id;
                         if (platform_name == column_name) {
                             rows[current_row][i] = sum;
                             break;
@@ -287,12 +270,49 @@ function summarizePlatformResultsByProject() {
             return parseInt(a[0]) - parseInt(b[0]);
         });
 
-        var today = new Date();
-        var from_date = new Date(chart_filter.from_date);
-        var showAnnotations = chart_filter.from_date != "all"
-                            && from_date.getTime() >= today.getTime() - 864010000;  // 10 days
+        // Generate tooltips
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            for (var j = 2; j < columns.length; j++) {
+                if (columns[j].role == "tooltip") {
+                    var tooltip = "<div style='padding: 10px;'>";
 
-        if (showAnnotations) {
+                    // Difference
+                    if (i > 0) {
+                        var previous_value = rows[i - 1][j - 1];
+                        var current_value = row[j - 1];
+                        var percentage = Math.round((current_value - previous_value) / previous_value * 100 * 1000) / 1000;
+                        if (percentage != 0) {
+                            if (percentage > 0)
+                                tooltip += "<p style='color: red;'><strong>+" + percentage + "%</strong></p>";
+                            else
+                                tooltip += "<p style='color: green;'><strong>" + percentage + "%</strong></p>";
+                            tooltip += "<hr>";
+                        }
+                    }
+
+                    // Revision number
+                    var revision = row[0];
+                    tooltip += "<p><strong>" + revision + "</strong></p>";
+
+                    // Platform name
+                    tooltip += "<p>" + columns[j - 1].label + "</p>";
+
+                    // CSV file
+                    var platform_and_flag = columns[j - 1].id;
+                    var date_ymd = row[1].toYMD();
+                    var date_parts = date_ymd.split("-");
+                    var file_path = platform_and_flag + "/" + date_parts[0] + "/" + date_parts[1] + "/" + date_ymd + "-" + platform_and_flag + "-r" + revision + "-results.csv";
+                    tooltip += "<hr><p><a href='" + csv_url_prefix + file_path + "' target='_blank'>Show CSV file</a></p>";
+
+                    tooltip += "</div>";
+                    row[j] = tooltip;
+                }
+            }
+        }
+
+        // Show annotations only when displaying 10 or less days
+        if (chart_filter.from_date.getTime() >= chart_filter.to_date.getTime() - 864010000) {
             // Show every single day
             var previous_date = first_result_date;
             for (var i = 0; i < rows.length; i++) {

@@ -104,6 +104,8 @@
             wheelMode: "zoom"
         });
 
+        date_slider_ui = $("#date-slider");
+
         google.charts.load('current', { packages: ['corechart', 'line'], callback: visualizationApiReady });
         function visualizationApiReady() {
             chart_div = document.querySelector('#chart_div_cm');
@@ -130,7 +132,7 @@
             showPlatforms();
         });
 
-        $("#date-slider").bind("userValuesChanged", function(e, data){
+        $("#date-slider").bind("valuesChanged", function(e, data){
             chart_filter.from_date = data.values.min;
             chart_filter.from_date = new Date(chart_filter.from_date.setHours(1, 0, 0, 0));
             chart_filter.to_date = data.values.max;

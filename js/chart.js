@@ -58,6 +58,8 @@ var daily_summary_prefix = "https://raw.githubusercontent.com/"
 var processed_days = [];
 var csibe_results = [];
 
+var date_slider_ui;
+
 (function() {
     Date.prototype.toYMD = Date_toYMD;
     function Date_toYMD() {
@@ -116,6 +118,13 @@ function drawChart(columns, rows, title) {
     };
 
     chart.draw(data, options);
+}
+
+function zoomInCallback(date, platform_and_flag) {
+    var parts = platform_and_flag.split("-");
+    chart_filter.flag = "-" + parts.pop();
+    chart_filter.arch = parts.join("-");
+    date_slider_ui.dateRangeSlider("values", new Date(date), new Date(date));
 }
 
 function getURL(url) {

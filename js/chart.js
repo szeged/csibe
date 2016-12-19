@@ -270,9 +270,17 @@ function summarizePlatformResultsByProject() {
             return parseInt(a[0]) - parseInt(b[0]);
         });
 
-        // Generate tooltips
+        var previous_date = first_result_date;
+
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
+            var current_date = row[1];
+
+            // Fix incorrect dates
+            if (previous_date.getTime() > current_date.getTime())
+                row[1] = previous_date;
+
+            // Generate tooltips
             for (var j = 2; j < columns.length; j++) {
                 if (columns[j].role == "tooltip") {
                     var tooltip = "<div style='padding: 10px;'>";
@@ -298,9 +306,12 @@ function summarizePlatformResultsByProject() {
                     // Platform name
                     tooltip += "<p>" + columns[j - 1].label + "</p>";
 
-                    // CSV file
+                    // Zoom in
                     var platform_and_flag = columns[j - 1].id;
-                    var date_ymd = row[1].toYMD();
+                    var date_ymd = current_date.toYMD();
+                    tooltip += "<hr><p><a href='#' onclick='zoomInCallback(\"" + date_ymd + "\", \"" + platform_and_flag + "\");'>Zoom in</a></p>";
+
+                    // CSV file
                     var date_parts = date_ymd.split("-");
                     var file_path = platform_and_flag + "/" + date_parts[0] + "/" + date_parts[1] + "/" + date_ymd + "-" + platform_and_flag + "-r" + revision + "-results.csv";
                     tooltip += "<hr><p><a href='" + csv_url_prefix + file_path + "' target='_blank'>Show CSV file</a></p>";
@@ -309,6 +320,7 @@ function summarizePlatformResultsByProject() {
                     row[j] = tooltip;
                 }
             }
+            previous_date = current_date;
         }
 
         // Show annotations only when displaying 10 or less days

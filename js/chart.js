@@ -38,10 +38,19 @@ var compiler_flags = [
 ];
 
 var chart_div = document.querySelector('#chart_div_cm');
+var zoom_div = document.querySelector('#chart_div_modal');
 
 var first_result_date = new Date("2016-09-26");
 
 var chart_filter = {
+    arch : "all",
+    project : "all",
+    flag : "-Os",
+    from_date : first_result_date,
+    to_date : new Date()
+};
+
+var zoom_filter = {
     arch : "all",
     project : "all",
     flag : "-Os",
@@ -94,8 +103,8 @@ function findPlatformAndFlagAlias(name) {
     return findPlatformAlias(parts.join("-")) + ", -" + flag;
 }
 
-function drawChart(columns, rows, title) {
-    var chart = new google.visualization.LineChart(chart_div);
+function drawChart(columns, rows, title, div) {
+    var chart = new google.visualization.LineChart(div);
     var data = new google.visualization.DataTable();
 
     for (var i = 0; i < columns.length; i++)
@@ -122,9 +131,11 @@ function drawChart(columns, rows, title) {
 
 function zoomInCallback(date, platform_and_flag) {
     var parts = platform_and_flag.split("-");
-    chart_filter.flag = "-" + parts.pop();
-    chart_filter.arch = parts.join("-");
-    date_slider_ui.dateRangeSlider("values", new Date(date), new Date(date));
+    zoom_filter.flag = "-" + parts.pop();
+    zoom_filter.arch = parts.join("-");
+    zoom_filter.project = chart_filter.project;
+    zoom_filter.from_date = new Date(date);
+    zoom_filter.to_date = new Date(date);
 }
 
 function getURL(url) {
@@ -174,14 +185,14 @@ function downloadNecessaryResults() {
     });
 }
 
-function summarizePlatformResultsByProject() {
+function summarizePlatformResultsByProject(filter, isZoomIn) {
     // Specify columns
     var columns = [
         { label: "Revision", type: "string" },
         { role: "annotation", type: "date" }
     ];
 
-    var arch = chart_filter.arch;
+    var arch = filter.arch;
     var platform_names = [];
     if (arch == "all" || arch == "arm")
         platform_names = platform_names.concat(arm_targets);
@@ -191,7 +202,7 @@ function summarizePlatformResultsByProject() {
         platform_names = platform_names.concat(arch);
 
     for (var platform of platform_names) {
-        if (chart_filter.flag == "all") {
+        if (filter.flag == "all") {
             for (var flag of compiler_flags) {
                 // Data column
                 columns.push({ id: platform + flag, label: findPlatformAndFlagAlias(platform + flag), type: "number" });
@@ -200,7 +211,7 @@ function summarizePlatformResultsByProject() {
             }
         } else {
             // Data column
-            columns.push({ id: platform + chart_filter.flag, label: findPlatformAndFlagAlias(platform + chart_filter.flag), type: "number" });
+            columns.push({ id: platform + filter.flag, label: findPlatformAndFlagAlias(platform + filter.flag), type: "number" });
             // Tooltip
             columns.push({ role: "tooltip", type: "string", 'p': {'html': true}});
         }
@@ -213,8 +224,8 @@ function summarizePlatformResultsByProject() {
         for (var current_day of csibe_results) {
             // Filter by date
             var current_day_date = new Date(current_day.date);
-            if (current_day_date.getTime() < chart_filter.from_date.getTime()
-                || current_day_date.getTime() > chart_filter.to_date.getTime())
+            if (current_day_date.getTime() < filter.from_date.getTime()
+                || current_day_date.getTime() > filter.to_date.getTime())
                 continue;
 
             // Iterate revisions
@@ -237,13 +248,13 @@ function summarizePlatformResultsByProject() {
                             break;
                         }
                     }
-                    if (!foundInPlatformsList || !platform.flags.includes(chart_filter.flag) && chart_filter.flag != "all")
+                    if (!foundInPlatformsList || !platform.flags.includes(filter.flag) && filter.flag != "all")
                         continue;
 
                     // Summarize all projects or just the specified one
                     var sum = 0;
-                    if (chart_filter.project != "all")
-                        sum = platform.projects[chart_filter.project];
+                    if (filter.project != "all")
+                        sum = platform.projects[filter.project];
                     else
                         sum = platform.sum;
 
@@ -318,7 +329,8 @@ function summarizePlatformResultsByProject() {
                     // Zoom in
                     var platform_and_flag = columns[j - 1].id;
                     var date_ymd = current_date.toYMD();
-                    tooltip += "<hr><p><a href='#' onclick='zoomInCallback(\"" + date_ymd + "\", \"" + platform_and_flag + "\");'>Zoom in</a></p>";
+                    if (!isZoomIn)
+                        tooltip += "<hr><p><a href='#zoom-in-modal' data-toggle='modal' data-target='#zoom-in-modal' onclick='zoomInCallback(\"" + date_ymd + "\", \"" + platform_and_flag + "\"); return true;'>Zoom in</a></p>";
 
                     // CSV file
                     var date_parts = date_ymd.split("-");
@@ -333,7 +345,7 @@ function summarizePlatformResultsByProject() {
         }
 
         // Show annotations only when displaying 10 or less days
-        if (chart_filter.from_date.getTime() >= chart_filter.to_date.getTime() - 864010000) {
+        if (filter.from_date.getTime() >= filter.to_date.getTime() - 864010000) {
             // Show every single day
             var previous_date = first_result_date;
             for (var i = 0; i < rows.length; i++) {
@@ -361,11 +373,23 @@ function summarizePlatformResultsByProject() {
 function showPlatforms() {
     chart_div.innerHTML = "Collecting data...";
 
-    summarizePlatformResultsByProject().then(function(chart_data) {
+    summarizePlatformResultsByProject(chart_filter, false).then(function(chart_data) {
         var title = "CSiBE code size";
         if (chart_filter.project != "all")
             title += " of " + chart_filter.project;
 
-        drawChart(chart_data.columns, chart_data.rows, title);
+        drawChart(chart_data.columns, chart_data.rows, title, chart_div);
+    });
+}
+
+function zoomIn() {
+    zoom_div.innerHTML = "Collecting data...";
+
+    summarizePlatformResultsByProject(zoom_filter, true).then(function(chart_data) {
+        var title = "CSiBE code size";
+        if (zoom_filter.project != "all")
+            title += " of " + zoom_filter.project;
+
+        drawChart(chart_data.columns, chart_data.rows, title, zoom_div);
     });
 }

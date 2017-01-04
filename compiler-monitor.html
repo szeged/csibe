@@ -10,6 +10,20 @@
   </head>
   <body>
 
+    <!-- Modal -->
+    <div class="modal fade" id="zoom-in-modal" tabindex="-1" role="dialog" aria-labelledby="zoomInLabel">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div id="chart_div_modal" style="width: 100%; height: 400px;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -104,6 +118,8 @@
             wheelMode: "zoom"
         });
 
+        date_slider_ui = $("#date-slider");
+
         google.charts.load('current', { packages: ['corechart', 'line'], callback: visualizationApiReady });
         function visualizationApiReady() {
             chart_div = document.querySelector('#chart_div_cm');
@@ -130,7 +146,7 @@
             showPlatforms();
         });
 
-        $("#date-slider").bind("userValuesChanged", function(e, data){
+        $("#date-slider").bind("valuesChanged", function(e, data){
             chart_filter.from_date = data.values.min;
             chart_filter.from_date = new Date(chart_filter.from_date.setHours(1, 0, 0, 0));
             chart_filter.to_date = data.values.max;
@@ -146,6 +162,10 @@
         $('#project-name-cm').on('change', function(e) {
             chart_filter.project = project_cm.options[project_cm.selectedIndex].value;
             showPlatforms();
+        });
+
+        $('#zoom-in-modal').on('shown.bs.modal', function() {
+            zoomIn();
         });
     </script>
 

@@ -7,6 +7,7 @@ import sys
 import tarfile
 import textwrap
 import urllib2
+import ssl
 
 class CSiBEBuilder(object):
 
@@ -36,35 +37,35 @@ class CSiBEBuilder(object):
             self.rustcflags.extend(flags["globalflags"])
 
         self.toolchain_build_dir = os.path.join(
-                                       self.build_dir,
-                                       self.toolchain_name)
+            self.build_dir,
+            self.toolchain_name)
 
         self.toolchain_files_dir = os.path.join(
-                                       self.csibe_dir,
-                                       "toolchain-files")
+            self.csibe_dir,
+            "toolchain-files")
 
         if self.toolchain_name == "native":
             self.toolchain_file_path = None
         else:
             self.toolchain_file_path = os.path.join(
-                                           self.toolchain_files_dir,
-                                           "{}.cmake".format(toolchain_name))
+                self.toolchain_files_dir,
+                "{}.cmake".format(toolchain_name))
 
         self.cmake_toolchain_options = ""
         if self.toolchain_file_path:
             self.cmake_toolchain_options = "-DCMAKE_TOOLCHAIN_FILE={}".format(self.toolchain_file_path)
 
         if self.projects:
-            os.environ["CSiBE_SUBPROJECTS"] = " ".join(self.projects);
+            os.environ["CSiBE_SUBPROJECTS"] = " ".join(self.projects)
 
         if self.cflags:
-            os.environ["CSiBE_CFLAGS"] = " ".join(self.cflags);
+            os.environ["CSiBE_CFLAGS"] = " ".join(self.cflags)
 
         if self.cxxflags:
-            os.environ["CSiBE_CXXFLAGS"] = " ".join(self.cxxflags);
+            os.environ["CSiBE_CXXFLAGS"] = " ".join(self.cxxflags)
 
         if self.rustcflags:
-            os.environ["CSiBE_RUSTCFLAGS"] = " ".join(self.rustcflags);
+            os.environ["CSiBE_RUSTCFLAGS"] = " ".join(self.rustcflags)
 
     def run_cmake(self):
         return subprocess.call(
@@ -88,24 +89,24 @@ class CSiBEBuilder(object):
 
 def submodule_init_and_update(repository_path, submodule_path):
     init_return_value = subprocess.call(
-                            ["git",
-                             "-C",
-                             repository_path,
-                             "submodule",
-                             "init",
-                             submodule_path])
+        ["git",
+         "-C",
+         repository_path,
+         "submodule",
+         "init",
+         submodule_path])
 
     if init_return_value:
         sys.stdout.write("Warning: Failed to execute git submodule init.")
         return
 
     update_return_value = subprocess.call(
-                              ["git",
-                               "-C",
-                               repository_path,
-                               "submodule",
-                               "update",
-                               submodule_path])
+        ["git",
+         "-C",
+         repository_path,
+         "submodule",
+         "update",
+         submodule_path])
 
     if update_return_value:
         sys.stdout.write("Warning: Failed to execute git submodule update.")
@@ -125,7 +126,11 @@ def download_old_testbed(version):
             os.makedirs(old_csibe_dirname)
 
         sys.stdout.write("Downloading {}...\n".format(version))
-        response = urllib2.urlopen("https://github.com/szeged/csibe/releases/download/CSiBE-v2.1.1/CSiBE-v2.1.1.tar.gz")
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        response = urllib2.urlopen("https://github.com/szeged/csibe/releases/download/CSiBE-v2.1.1/CSiBE-v2.1.1.tar.gz",
+                                   context=ctx)
         response_data = response.read()
 
         with open(old_csibe_tar_filepath, "wb") as code:
@@ -265,10 +270,10 @@ if __name__ == "__main__":
 
     for target in targets_to_build:
         builder = CSiBEBuilder(csibe_path, args.build_dir, target, projects_to_build,
-            {"cflags" : args.cflags,
-             "cxxflags" : args.cxxflags,
-             "rustcflags" : args.rustcflags,
-             "globalflags" : global_flags})
+                               {"cflags": args.cflags,
+                                "cxxflags": args.cxxflags,
+                                "rustcflags": args.rustcflags,
+                                "globalflags": global_flags})
 
         cmake_return_value = builder.run_cmake()
         if cmake_return_value:
@@ -284,4 +289,3 @@ if __name__ == "__main__":
         make_size_return_value = builder.run_make_size()
         if make_size_return_value:
             sys.exit(make_size_return_value)
-

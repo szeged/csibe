@@ -6,8 +6,12 @@ import subprocess
 import sys
 import tarfile
 import textwrap
-import urllib2
 import ssl
+
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 class CSiBEBuilder(object):
 

@@ -6,7 +6,7 @@ echo 'export SHELL="/bin/bash"' >> .bashrc
 
 export SHELL="/bin/bash"
 
-python --version
+python3 --version
 
 git clone https://github.com/szeged/csibe
 cd csibe

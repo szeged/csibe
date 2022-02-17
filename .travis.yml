@@ -33,10 +33,10 @@ install:
       gcc-arm-none-eabi
       libc6-dev
       libc6-dev-i386
-      python
+      python3
       wget
 
 script:
-  - python csibe.py native
-  - python csibe.py native CSiBE-v2.1.1 -w
-  - python csibe.py $TOOLCHAINS
+  - python3 csibe.py native
+  - python3 csibe.py native CSiBE-v2.1.1 -w
+  - python3 csibe.py $TOOLCHAINS

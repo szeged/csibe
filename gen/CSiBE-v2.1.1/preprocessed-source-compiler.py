@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     c_compiler_name = "gcc"
 
     if "CC" in os.environ:
-       c_compiler_name = os.environ["CC"] 
+        c_compiler_name = os.environ["CC"]
 
     preprocessed_sources = ""
 

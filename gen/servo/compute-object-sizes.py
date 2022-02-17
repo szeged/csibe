@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import sys
@@ -42,16 +42,17 @@ if __name__ == '__main__':
                         if res[name][elem] == size:
                             if elem == invalid:
                                 del res[name][elem]
-                                res[name] = { rlib: size }
+                                res[name] = {rlib: size}
                         else:
-                            res[name] = { rlib: size }
+                            res[name] = {rlib: size}
                 else:
-                    res[name] = { rlib: size }
+                    res[name] = {rlib: size}
 
-    print outfile
+    print(outfile)
+
     target = open(outfile, 'w')
     for obj in res:
-        rlib = res[obj].keys()[0]
+        rlib = list(res[obj].keys())[0]
         name = ""
         if rlib != invalid:
             name = rlib + "_"
